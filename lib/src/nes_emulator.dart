@@ -1,16 +1,11 @@
-import 'dart:typed_data';
+import 'package:nes_dart/src/nes_rom.dart';
 
 /// NES模拟器
 class NESEmulator {
-  /// rom数据
-  final Uint8List bytes;
+  /// rom
+  final NESRom rom;
 
   NESEmulator({
-    required this.bytes,
+    required this.rom,
   });
-
-  /// 加载rom
-  void load() {
-    /// TODO: 实现加载rom
-  }
 }
