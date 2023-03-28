@@ -11,6 +11,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  logger: ^1.3.0
+  date_format: ^2.0.7
+  collection: ^1.17.0
 
 dev_dependencies:
   flutter_test:
