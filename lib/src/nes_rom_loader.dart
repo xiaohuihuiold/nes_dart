@@ -14,15 +14,12 @@ class NESRomLoader {
   /// 从内存创建
   static NESRom loadFromMemory(Uint8List bytes) {
     final byteData = bytes.buffer.asByteData();
-    if (byteData.lengthInBytes < 4) {
-      logger.e('非nes文件');
-      throw Exception('非nes文件');
-    }
     if (byteData.getString(0) != fileHeader) {
       logger.e('非nes文件');
       throw Exception('非nes文件');
     }
-    return NESRom._create();
+    final nes20Format = byteData.getUint8(7) & 0xc == 0x8;
+    return NESRom._create(nes20Format: nes20Format);
   }
 
   /// 从文件路径创建
