@@ -3,7 +3,7 @@ import 'package:nes_dart/nes_dart.dart';
 
 void main() {
   test('run nestest', () async {
-    final rom = await NESRom.fromPath('roms/nestest.nes');
+    final rom = await NESRomLoader.loadFromPath('roms/nestest.nes');
     print(rom);
   });
 }
