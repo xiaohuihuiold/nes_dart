@@ -1,4 +1,4 @@
-import 'nes_rom_loader.dart';
+import 'nes_rom.dart';
 
 /// NES模拟器
 class NESEmulator {
