@@ -4,8 +4,8 @@ enum NESVersion {
   nes20,
 }
 
-///
-enum NESNameTableMirrorType {
+/// 镜像类型
+enum NESMirrorType {
   horizontal,
   vertical,
 }
@@ -35,16 +35,16 @@ class NESRom {
   final int chrCount;
   final int chrSize;
 
-  ///
-  final NESNameTableMirrorType nameTableMirrorType;
+  /// 镜像类型
+  final NESMirrorType mirrorType;
 
-  /// 是否有电池
-  final bool hasBattery;
+  /// 是否有SRAM,$6000-$7FFF
+  final bool hasSRAM;
 
-  /// 是否有Trainer
+  /// 是否有Trainer,$6000-$71FF
   final bool hasTrainer;
 
-  /// 是否四屏模式
+  /// 是否四屏模式,为true忽略[mirrorType]
   final bool fourScreenMode;
 
   /// 控制台类型
@@ -56,8 +56,8 @@ class NESRom {
     required this.prgSize,
     required this.chrCount,
     required this.chrSize,
-    required this.nameTableMirrorType,
-    required this.hasBattery,
+    required this.mirrorType,
+    required this.hasSRAM,
     required this.hasTrainer,
     required this.fourScreenMode,
     required this.consoleType,
@@ -69,8 +69,8 @@ class NESRom {
         '\tversion: ${version.name}\n'
         '\tPRG-ROM size: $prgCount*${0x4000}=$prgSize\n'
         '\tCHR-ROM size: $chrCount*${0x2000}=$chrSize\n'
-        '\tnameTableMirrorType: ${nameTableMirrorType.name}\n'
-        '\thasBattery: $hasBattery\n'
+        '\tmirrorType: ${mirrorType.name}\n'
+        '\thasSRAM: $hasSRAM\n'
         '\thasTrainer: $hasTrainer\n'
         '\tfourScreenMode: $fourScreenMode\n'
         '\tconsoleType: ${consoleType.name}\n'
@@ -83,9 +83,8 @@ class NESRomBuilder {
   NESVersion _version = NESVersion.nes10;
   int _prgCount = 0;
   int _chrCount = 0;
-  NESNameTableMirrorType _nameTableMirrorType =
-      NESNameTableMirrorType.horizontal;
-  bool _hasBattery = false;
+  NESMirrorType _mirrorType = NESMirrorType.horizontal;
+  bool _hasSRAM = false;
   bool _hasTrainer = false;
   bool _fourScreenMode = false;
   NESConsoleType _consoleType = NESConsoleType.nesc;
@@ -96,10 +95,9 @@ class NESRomBuilder {
 
   set chrCount(int value) => _chrCount = value;
 
-  set nameTableMirrorType(NESNameTableMirrorType value) =>
-      _nameTableMirrorType = value;
+  set mirrorType(NESMirrorType value) => _mirrorType = value;
 
-  set hasBattery(bool value) => _hasBattery = value;
+  set hasSRAM(bool value) => _hasSRAM = value;
 
   set hasTrainer(bool value) => _hasTrainer = value;
 
@@ -115,8 +113,8 @@ class NESRomBuilder {
       prgSize: _prgCount * 0x4000,
       chrCount: _chrCount,
       chrSize: _chrCount * 0x2000,
-      nameTableMirrorType: _nameTableMirrorType,
-      hasBattery: _hasBattery,
+      mirrorType: _mirrorType,
+      hasSRAM: _hasSRAM,
       hasTrainer: _hasTrainer,
       fourScreenMode: _fourScreenMode,
       consoleType: _consoleType,

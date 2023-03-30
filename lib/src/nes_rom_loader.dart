@@ -62,11 +62,10 @@ class NESRomLoader {
     // offset: 6
     final byte = _byteData.getUint8(offset);
     // bit(0):
-    _builder.nameTableMirrorType = (byte & 0x01 == 1)
-        ? NESNameTableMirrorType.vertical
-        : NESNameTableMirrorType.horizontal;
+    _builder.mirrorType =
+        (byte & 0x01 == 1) ? NESMirrorType.vertical : NESMirrorType.horizontal;
     // bit(1):
-    _builder.hasBattery = ((byte >> 1) & 0x01) == 1;
+    _builder.hasSRAM = ((byte >> 1) & 0x01) == 1;
     // bit(2):
     _builder.hasTrainer = ((byte >> 2) & 0x01) == 1;
     // bit(3):
