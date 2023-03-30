@@ -5,5 +5,7 @@ void main() {
   test('run nestest', () async {
     final rom = await NESRomLoader.loadFromPath('roms/nestest.nes');
     print(rom);
+    final emulator = NESEmulator(rom: rom);
+    emulator.run();
   });
 }
