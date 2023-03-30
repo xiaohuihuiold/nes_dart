@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 /// NES版本
 enum NESVersion {
   nes10,
@@ -22,18 +24,25 @@ enum NESConsoleType {
   ect,
 }
 
+/// PRG区块大小
+const kPRGChunkSize = 16 * 1024;
+
+/// CHR区块大小
+const kCHRChunkSize = 8 * 1024;
+
 /// ROM
 class NESRom {
+  /// 文件大小
+  final int fileSize;
+
   /// NES版本
   final NESVersion version;
 
   /// PRG-ROM大小
   final int prgCount;
-  final int prgSize;
 
   /// CHR-ROM大小
   final int chrCount;
-  final int chrSize;
 
   /// 镜像类型
   final NESMirrorType mirrorType;
@@ -50,74 +59,79 @@ class NESRom {
   /// 控制台类型
   final NESConsoleType consoleType;
 
+  /// Mapper Number
+  final int mapperNumber;
+
+  /// PRG-ROM
+  final Uint8List? prgRom;
+
+  /// CHR-ROM
+  final Uint8List? chrRom;
+
   NESRom._create({
+    required this.fileSize,
     required this.version,
     required this.prgCount,
-    required this.prgSize,
     required this.chrCount,
-    required this.chrSize,
     required this.mirrorType,
     required this.hasSRAM,
     required this.hasTrainer,
     required this.fourScreenMode,
     required this.consoleType,
+    required this.mapperNumber,
+    required this.prgRom,
+    required this.chrRom,
   });
 
   @override
   String toString() {
     return 'NESRom {\n'
+        '\tfileSize: $fileSize\n'
         '\tversion: ${version.name}\n'
-        '\tPRG-ROM size: $prgCount*${0x4000}=$prgSize\n'
-        '\tCHR-ROM size: $chrCount*${0x2000}=$chrSize\n'
+        '\tPRG-ROM: $prgCount*16KiB\n'
+        '\tCHR-ROM: $chrCount*8KiB\n'
         '\tmirrorType: ${mirrorType.name}\n'
         '\thasSRAM: $hasSRAM\n'
         '\thasTrainer: $hasTrainer\n'
         '\tfourScreenMode: $fourScreenMode\n'
         '\tconsoleType: ${consoleType.name}\n'
+        '\tmapperNumber: $mapperNumber\n'
         '}';
   }
 }
 
 /// ROM Builder
 class NESRomBuilder {
-  NESVersion _version = NESVersion.nes10;
-  int _prgCount = 0;
-  int _chrCount = 0;
-  NESMirrorType _mirrorType = NESMirrorType.horizontal;
-  bool _hasSRAM = false;
-  bool _hasTrainer = false;
-  bool _fourScreenMode = false;
-  NESConsoleType _consoleType = NESConsoleType.nesc;
+  int fileSize = 0;
+  NESVersion version = NESVersion.nes10;
+  int prgCount = 0;
+  int chrCount = 0;
+  NESMirrorType mirrorType = NESMirrorType.horizontal;
+  bool hasSRAM = false;
+  bool hasTrainer = false;
+  bool fourScreenMode = false;
+  NESConsoleType consoleType = NESConsoleType.nesc;
+  int _mapperNumber = 0;
+  Uint8List? prgRom;
+  Uint8List? chrRom;
 
-  set version(NESVersion value) => _version = value;
-
-  set prgCount(int value) => _prgCount = value;
-
-  set chrCount(int value) => _chrCount = value;
-
-  set mirrorType(NESMirrorType value) => _mirrorType = value;
-
-  set hasSRAM(bool value) => _hasSRAM = value;
-
-  set hasTrainer(bool value) => _hasTrainer = value;
-
-  set fourScreenMode(bool value) => _fourScreenMode = value;
-
-  set consoleType(NESConsoleType value) => _consoleType = value;
+  set mapperNumber(int value) => _mapperNumber |= value;
 
   /// 构建ROM
   NESRom build() {
     return NESRom._create(
-      version: _version,
-      prgCount: _prgCount,
-      prgSize: _prgCount * 0x4000,
-      chrCount: _chrCount,
-      chrSize: _chrCount * 0x2000,
-      mirrorType: _mirrorType,
-      hasSRAM: _hasSRAM,
-      hasTrainer: _hasTrainer,
-      fourScreenMode: _fourScreenMode,
-      consoleType: _consoleType,
+      fileSize: fileSize,
+      version: version,
+      prgCount: prgCount,
+      chrCount: chrCount,
+      mirrorType: mirrorType,
+      hasSRAM: hasSRAM,
+      hasTrainer: hasTrainer,
+      fourScreenMode: fourScreenMode,
+      consoleType: consoleType,
+      mapperNumber: _mapperNumber,
+      prgRom: prgRom,
+      chrRom: chrRom,
     );
   }
 }

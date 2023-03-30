@@ -13,4 +13,8 @@ extension ByteDataExt on ByteData {
     }
     return String.fromCharCodes(buffer.asUint8List(), offset, end);
   }
+
+  Uint8List getUint8List(int offset, [int? end]) {
+    return buffer.asUint8List(offset, end == null ? null : end - offset);
+  }
 }

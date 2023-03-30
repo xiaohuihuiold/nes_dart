@@ -40,11 +40,29 @@ class NESRomLoader {
 
   /// 加载ROM
   NESRom load() {
+    _builder.fileSize = _byteData.lengthInBytes;
     int offset = 4;
+    offset = _loadHeader(offset);
+    offset = _loadPRGAndCHRRom(offset);
+    return _builder.build();
+  }
+
+  /// 加载header
+  int _loadHeader(int offset) {
     offset = _loadPRGAndCHRSize(offset);
     offset = _loadFlag6(offset);
     offset = _loadFlag7(offset);
-    return _builder.build();
+    if (_builder.version == NESVersion.nes20) {
+      // TODO: 实现NES2.0头读取
+      throw Exception('未实现NES2.0读取');
+    } else {
+      offset += 8;
+    }
+    if (_builder.hasTrainer) {
+      // TODO: 实现Trainer
+      throw Exception('未实现Trainer');
+    }
+    return offset;
   }
 
   /// 获取PRG和CHR大小
@@ -71,7 +89,7 @@ class NESRomLoader {
     // bit(3):
     _builder.fourScreenMode = ((byte >> 3) & 0x01) == 1;
     // bit(4-7):
-    // TODO: 读取Mapper Number D0-D3
+    _builder.mapperNumber = (byte >> 4) & 0x0F;
     return offset + 1;
   }
 
@@ -85,7 +103,18 @@ class NESRomLoader {
     _builder.version =
         (byte & 0x0C == 0x08) ? NESVersion.nes20 : NESVersion.nes10;
     // bit(4-7):
-    // TODO: 读取Mapper Number D4-D7
+    _builder.mapperNumber = byte & 0xF0;
     return offset + 1;
+  }
+
+  /// 获取PRG-ROM和CHR-ROM
+  int _loadPRGAndCHRRom(int offset) {
+    // offset: 16
+    final prgSize = _builder.prgCount * kPRGChunkSize;
+    final chrSize = _builder.chrCount * kCHRChunkSize;
+    _builder.prgRom = _byteData.getUint8List(offset, offset + prgSize);
+    offset += prgSize;
+    _builder.chrRom = _byteData.getUint8List(offset, offset + chrSize);
+    return offset + chrSize;
   }
 }
