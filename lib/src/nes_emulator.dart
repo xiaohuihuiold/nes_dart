@@ -1,5 +1,4 @@
-import 'dart:typed_data';
-
+import 'mapper/mapper.dart';
 import 'logger.dart';
 
 import 'nes_rom.dart';
@@ -17,14 +16,10 @@ class NESEmulator {
   /// rom
   final NESRom rom;
 
-  /// 程序bank
-  final _prgBanks = List<ByteData?>.filled(0x10000 >> 13, null);
+  /// 内存映射
+  late NESMapper _mapper;
 
-  /// 工作内存
-  final _saveMemory = ByteData(8 * 1024);
-
-  /// 主内存
-  final _mainMemory = ByteData(2 * 1024);
+  NESMapper get mapper => _mapper;
 
   /// 模拟器状态
   NESEmulatorState _state = NESEmulatorState.idle;
@@ -33,7 +28,10 @@ class NESEmulator {
 
   NESEmulator({
     required this.rom,
-  });
+  }) {
+    // TODO: 根据mapper编号创建
+    _mapper = NESMapper000(this);
+  }
 
   /// 运行模拟器
   void run() {
@@ -41,27 +39,29 @@ class NESEmulator {
       logger.w('模拟器正在运行中');
       return;
     }
+    _state = NESEmulatorState.running;
     logger.i('模拟器开始运行...');
-    _prgBanks[0] = _saveMemory;
-    _prgBanks[3] = _mainMemory;
-    _resetMapper00();
   }
 
-  /// 重置mapper00
-  void _resetMapper00() {
-    final id2 = rom.prgCount & 0x10;
-    _loadProgram8k(0, 0);
-    _loadProgram8k(1, 1);
-    _loadProgram8k(2, id2 + 0);
-    _loadProgram8k(3, id2 + 1);
+  /// 重置
+  void reset() {
+    _mapper.reset();
+    logger.i('模拟器已重置');
   }
 
-  /// 加载8k PRG-ROM
-  void _loadProgram8k(int dest, int src) {
-    final prgRom = rom.prgRom;
-    if (prgRom == null) {
-      logger.e('找不到PRG-ROM');
+  /// 暂停
+  void pause() {
+    if (state != NESEmulatorState.running) {
+      logger.w('模拟器不在运行中');
       return;
     }
+    _state = NESEmulatorState.pause;
+    logger.i('模拟器已暂停');
+  }
+
+  /// 暂停
+  void stop() {
+    _state = NESEmulatorState.stop;
+    logger.i('模拟器已停止');
   }
 }
