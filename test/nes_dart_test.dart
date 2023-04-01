@@ -7,6 +7,6 @@ void main() {
     print(rom);
     final emulator = NESEmulator(rom: rom);
     emulator.run();
-    print('end');
+    print(emulator.mapper.read(0xc003));
   });
 }

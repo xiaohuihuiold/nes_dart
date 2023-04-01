@@ -1,4 +1,4 @@
-import 'mapper/mapper.dart';
+import 'nes_mapper.dart';
 import 'logger.dart';
 
 import 'nes_rom.dart';
