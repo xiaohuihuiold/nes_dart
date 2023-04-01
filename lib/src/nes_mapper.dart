@@ -1,9 +1,10 @@
 import 'package:flutter/foundation.dart';
-import 'package:nes_dart/src/logger.dart';
 
+import 'logger.dart';
 import 'constants.dart';
 import 'nes_memory.dart';
 import 'nes_emulator.dart';
+import 'nes_cpu.dart';
 
 /// Mapper
 ///
@@ -57,6 +58,11 @@ abstract class NESMapper {
   /// 读取数据
   int read16(int address) {
     return _memory.read16(address);
+  }
+
+  /// 获取中断地址
+  int readInterruptAddress(NESCpuInterrupt interrupt) {
+    return _memory.read16(interrupt.address);
   }
 }
 
@@ -135,6 +141,8 @@ class NESMapper000 extends NESMapper {
     logger.v('PRG-ROM已加载');
   }
 
+  /// 加载PRG-ROM
+  /// Mapper000容量16KiB或者32KiB,所以一次加载16KiB
   void _load16KiBRomBank(int bank, int address) {
     final start = bank * Constants.byte16KiB;
     _memory.writeAll(
