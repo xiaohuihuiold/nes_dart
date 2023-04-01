@@ -1,5 +1,11 @@
+import 'package:flutter/foundation.dart';
+import 'package:nes_dart/src/logger.dart';
+
+import '../constants.dart';
 import '../nes_memory.dart';
 import '../nes_emulator.dart';
+
+part 'nes_mappers.dart';
 
 /// Mapper
 ///
@@ -15,6 +21,12 @@ import '../nes_emulator.dart';
 /// | $4018-$401F | $0008 | APU和IO相关         |
 /// | $4020-$FFFF | $BFE0 | 卡带空间            |
 abstract class NESMapper {
+  /// RAM地址mask
+  static const maskRAM = 0x07FF;
+
+  /// RAM最大地址
+  static const maxRAMAddress = 0x1FFF;
+
   /// 模拟器
   final NESEmulator emulator;
 
@@ -24,17 +36,14 @@ abstract class NESMapper {
   NESMapper(this.emulator);
 
   /// 重置
+  @mustCallSuper
   void reset() {
     _memory.reset();
   }
 
   /// 写入数据
-  void write(int address, int value) {
-    _memory.write(address, value);
-  }
+  void write(int address, int value);
 
   /// 读取数据
-  int read(int address) {
-    return _memory.read(address);
-  }
+  int read(int address);
 }

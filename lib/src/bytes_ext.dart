@@ -1,13 +1,13 @@
 import 'dart:typed_data';
 
-/// EOF
-const _eof = 0x1A;
+import 'constants.dart';
 
 /// ByteData扩展
 extension ByteDataExt on ByteData {
   String getString(int offset, [int? end]) {
-    end ??=
-        buffer.asUint8List().indexWhere((element) => element == _eof, offset);
+    end ??= buffer
+        .asUint8List()
+        .indexWhere((element) => element == Constants.eof, offset);
     if (end == -1) {
       end = null;
     }
@@ -18,9 +18,10 @@ extension ByteDataExt on ByteData {
     return buffer.asUint8List(offset, end == null ? null : end - offset);
   }
 
-  void setUint8List(int offset, List<int> bytes) {
-    for (int i = offset; i < offset + bytes.length; i++) {
-      setUint8(i, bytes[i - offset]);
+  void setUint8List(int offset, List<int> bytes, {int start = 0, int? end}) {
+    final length = end == null ? null : end - start;
+    for (int i = offset; i < offset + (length ?? bytes.length); i++) {
+      setUint8(i, bytes[i - offset + start]);
     }
   }
 }

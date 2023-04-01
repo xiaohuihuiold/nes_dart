@@ -1,11 +1,14 @@
 import 'dart:typed_data';
 
-import 'package:nes_dart/src/bytes_ext.dart';
+import 'package:nes_dart/src/logger.dart';
+
+import 'bytes_ext.dart';
+import 'constants.dart';
 
 /// 内存
 class NESMemory {
   /// 将可寻址最大地址作为内存大小,65536字节
-  static const _memorySize = 2 << 16;
+  static const _memorySize = Constants.byte64KiB;
 
   /// 内存
   ByteData _memory = ByteData(_memorySize);
@@ -13,6 +16,7 @@ class NESMemory {
   /// 重置内存
   void reset() {
     _memory = ByteData(_memorySize);
+    logger.v('内存已重置');
   }
 
   /// 获取uint16类型数据
@@ -41,8 +45,8 @@ class NESMemory {
   }
 
   /// 写入多段数据
-  void writeAll(int address, List<int> bytes) {
-    _memory.setUint8List(address, bytes);
+  void writeAll(int address, List<int> bytes, {int start = 0, int? end}) {
+    _memory.setUint8List(address, bytes, start: start, end: end);
   }
 
   /// 获取uint8类型数据

@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 
+import 'constants.dart';
+
 /// NES版本
 enum NESVersion {
   nes10,
@@ -25,10 +27,10 @@ enum NESConsoleType {
 }
 
 /// PRG区块大小
-const kPRGChunkSize = 16 * 1024;
+const kPRGChunkSize = Constants.byte16KiB;
 
 /// CHR区块大小
-const kCHRChunkSize = 8 * 1024;
+const kCHRChunkSize = Constants.byte8KiB;
 
 /// ROM
 class NESRom {
@@ -63,10 +65,10 @@ class NESRom {
   final int mapperNumber;
 
   /// PRG-ROM
-  final Uint8List? prgRom;
+  final Uint8List prgRom;
 
   /// CHR-ROM
-  final Uint8List? chrRom;
+  final Uint8List chrRom;
 
   NESRom._create({
     required this.fileSize,
@@ -112,8 +114,8 @@ class NESRomBuilder {
   bool fourScreenMode = false;
   NESConsoleType consoleType = NESConsoleType.nesc;
   int _mapperNumber = 0;
-  Uint8List? prgRom;
-  Uint8List? chrRom;
+  Uint8List prgRom = Uint8List(0);
+  Uint8List chrRom = Uint8List(0);
 
   set mapperNumber(int value) => _mapperNumber |= value;
 

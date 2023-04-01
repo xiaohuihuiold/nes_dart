@@ -39,6 +39,7 @@ class NESEmulator {
       logger.w('模拟器正在运行中');
       return;
     }
+    reset();
     _state = NESEmulatorState.running;
     logger.i('模拟器开始运行...');
   }
