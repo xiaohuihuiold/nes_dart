@@ -6,17 +6,18 @@ import 'nes_emulator.dart';
 /// 中断时会执行指定地址存放的地址
 enum NESCpuInterrupt {
   // IRQ中断,$FFFE-$FFFF
-  irq(0xFFFE),
+  irq(0xFFFE, 0),
   // BRK中断,$FFFE-$FFFF
-  brk(0xFFFE),
+  brk(0xFFFE, 1),
   // NMI中断,$FFFA-$FFFB
-  nmi(0xFFFA),
+  nmi(0xFFFA, 2),
   // RESET中断,$FFFC-$FFFD
-  reset(0xFFFC);
+  reset(0xFFFC, 3);
 
   final int address;
+  final int priority;
 
-  const NESCpuInterrupt(this.address);
+  const NESCpuInterrupt(this.address, this.priority);
 }
 
 /// CPU
@@ -41,7 +42,8 @@ class NESCpu {
         .readInterruptAddress(NESCpuInterrupt.reset)
         .toRadixString(16)
         .toUpperCase();
-    logger.i('IRQ/BRK: \$$irqAddress, NMI: \$$nmiAddress, RESET: \$$resetAddress');
+    logger.i(
+        'IRQ/BRK: \$$irqAddress, NMI: \$$nmiAddress, RESET: \$$resetAddress');
     logger.v('CPU已重置');
   }
 }

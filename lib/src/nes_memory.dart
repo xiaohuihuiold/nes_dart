@@ -7,6 +7,10 @@ import 'constants.dart';
 
 /// 内存
 class NESMemory {
+  /// 页面
+  static const pageSize = 0x0100;
+  static const pageCount = 0x0100;
+
   /// 将可寻址最大地址作为内存大小,65536字节
   static const _memorySize = Constants.byte64KiB;
 
