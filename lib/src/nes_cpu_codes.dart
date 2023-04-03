@@ -52,7 +52,34 @@ enum NESOp {
   ldy('LDY'),
 
   /// 将A累加器的值存入
-  sta('STA');
+  sta('STA'),
+
+  /// 将X变址寄存器的值存入
+  stx('STX'),
+
+  /// 将Y变址寄存器的值存入
+  sty('STY'),
+
+  /// 累加器,地址值,进位标志C相加结果存入累加器A
+  adc('ADC'),
+
+  /// 从累加器A减去存储值和进位标志C结果送入累加器A
+  sbc('SBC'),
+
+  /// 值加1
+  inc('INC'),
+
+  /// 值减1
+  dec('DEC'),
+
+  /// 值与累加器做与运算,结果放入累加器A
+  and('AND'),
+
+  /// 值与累加器做或运算,结果放入累加器A
+  ora('ORA'),
+
+  /// 值与累加器做异或运算,结果放入累加器A
+  era('ERA');
 
   final String name;
 
@@ -113,11 +140,83 @@ final nesCpuCodes = [
   NESOpCode(0xA2, 3, NESOp.ldy, NESAddressing.absoluteX, 4, 1),
 
   /// STA
-  NESOpCode(0x85, 2, NESOp.sta, NESAddressing.immediate, 3, 0),
-  NESOpCode(0x95, 2, NESOp.sta, NESAddressing.immediate, 4, 0),
-  NESOpCode(0x80, 3, NESOp.sta, NESAddressing.immediate, 4, 0),
-  NESOpCode(0x90, 3, NESOp.sta, NESAddressing.immediate, 5, 0),
-  NESOpCode(0x99, 3, NESOp.sta, NESAddressing.immediate, 5, 0),
-  NESOpCode(0x81, 2, NESOp.sta, NESAddressing.immediate, 6, 0),
-  NESOpCode(0x91, 2, NESOp.sta, NESAddressing.immediate, 6, 0),
+  NESOpCode(0x85, 2, NESOp.sta, NESAddressing.zeroPage, 3, 0),
+  NESOpCode(0x95, 2, NESOp.sta, NESAddressing.zeroPageX, 4, 0),
+  NESOpCode(0x80, 3, NESOp.sta, NESAddressing.absolute, 4, 0),
+  NESOpCode(0x90, 3, NESOp.sta, NESAddressing.absoluteX, 5, 0),
+  NESOpCode(0x99, 3, NESOp.sta, NESAddressing.absoluteY, 5, 0),
+  NESOpCode(0x81, 2, NESOp.sta, NESAddressing.indirectX, 6, 0),
+  NESOpCode(0x91, 2, NESOp.sta, NESAddressing.indirectY, 6, 0),
+
+  /// STX
+  NESOpCode(0x86, 2, NESOp.stx, NESAddressing.zeroPage, 3, 0),
+  NESOpCode(0x96, 2, NESOp.stx, NESAddressing.zeroPageY, 4, 0),
+  NESOpCode(0x8E, 3, NESOp.stx, NESAddressing.absolute, 4, 0),
+
+  /// STY
+  NESOpCode(0x84, 2, NESOp.sty, NESAddressing.zeroPage, 3, 0),
+  NESOpCode(0x94, 2, NESOp.sty, NESAddressing.zeroPageX, 4, 0),
+  NESOpCode(0x8C, 3, NESOp.sty, NESAddressing.absolute, 4, 0),
+
+  /// ADC
+  NESOpCode(0x69, 2, NESOp.adc, NESAddressing.immediate, 2, 0),
+  NESOpCode(0x65, 2, NESOp.adc, NESAddressing.zeroPage, 3, 0),
+  NESOpCode(0x75, 2, NESOp.adc, NESAddressing.zeroPageX, 4, 0),
+  NESOpCode(0x60, 3, NESOp.adc, NESAddressing.absolute, 4, 0),
+  NESOpCode(0x70, 3, NESOp.adc, NESAddressing.absoluteX, 4, 1),
+  NESOpCode(0x79, 3, NESOp.adc, NESAddressing.absoluteY, 4, 1),
+  NESOpCode(0x61, 2, NESOp.adc, NESAddressing.indirectX, 6, 0),
+  NESOpCode(0x71, 2, NESOp.adc, NESAddressing.indirectY, 5, 1),
+
+  /// SBC
+  NESOpCode(0xE9, 2, NESOp.sbc, NESAddressing.immediate, 2, 0),
+  NESOpCode(0xE5, 2, NESOp.sbc, NESAddressing.zeroPage, 3, 0),
+  NESOpCode(0xF5, 2, NESOp.sbc, NESAddressing.zeroPageX, 4, 0),
+  NESOpCode(0xED, 3, NESOp.sbc, NESAddressing.absolute, 4, 0),
+  NESOpCode(0xFD, 3, NESOp.sbc, NESAddressing.absoluteX, 4, 1),
+  NESOpCode(0xF9, 3, NESOp.sbc, NESAddressing.absoluteY, 4, 1),
+  NESOpCode(0xE1, 2, NESOp.sbc, NESAddressing.indirectX, 6, 0),
+  NESOpCode(0xF1, 2, NESOp.sbc, NESAddressing.indirectY, 5, 0),
+
+  /// INC
+  NESOpCode(0xE6, 2, NESOp.inc, NESAddressing.zeroPage, 5, 0),
+  NESOpCode(0xF6, 2, NESOp.inc, NESAddressing.zeroPageX, 6, 0),
+  NESOpCode(0xEE, 3, NESOp.inc, NESAddressing.absolute, 6, 0),
+  NESOpCode(0xFE, 3, NESOp.inc, NESAddressing.absoluteX, 7, 0),
+
+  /// DEC
+  NESOpCode(0xC6, 2, NESOp.dec, NESAddressing.zeroPage, 5, 0),
+  NESOpCode(0xD6, 2, NESOp.dec, NESAddressing.zeroPageX, 6, 0),
+  NESOpCode(0xCE, 3, NESOp.dec, NESAddressing.absolute, 6, 0),
+  NESOpCode(0xDE, 3, NESOp.dec, NESAddressing.absoluteX, 7, 0),
+
+  /// AND
+  NESOpCode(0x29, 2, NESOp.and, NESAddressing.immediate, 2, 0),
+  NESOpCode(0x25, 2, NESOp.and, NESAddressing.zeroPage, 3, 0),
+  NESOpCode(0x35, 2, NESOp.and, NESAddressing.zeroPageX, 4, 0),
+  NESOpCode(0x2D, 3, NESOp.and, NESAddressing.absolute, 4, 0),
+  NESOpCode(0x3D, 3, NESOp.and, NESAddressing.absoluteX, 4, 1),
+  NESOpCode(0x39, 3, NESOp.and, NESAddressing.absoluteY, 4, 1),
+  NESOpCode(0x21, 2, NESOp.and, NESAddressing.indirectX, 6, 0),
+  NESOpCode(0x31, 2, NESOp.and, NESAddressing.indirectY, 5, 0),
+
+  /// ORA
+  NESOpCode(0x09, 2, NESOp.ora, NESAddressing.immediate, 2, 0),
+  NESOpCode(0x05, 2, NESOp.ora, NESAddressing.zeroPage, 3, 0),
+  NESOpCode(0x15, 2, NESOp.ora, NESAddressing.zeroPageX, 4, 0),
+  NESOpCode(0x0D, 3, NESOp.ora, NESAddressing.absolute, 4, 0),
+  NESOpCode(0x10, 3, NESOp.ora, NESAddressing.absoluteX, 4, 1),
+  NESOpCode(0x19, 3, NESOp.ora, NESAddressing.absoluteY, 4, 1),
+  NESOpCode(0x01, 2, NESOp.ora, NESAddressing.indirectX, 6, 0),
+  NESOpCode(0x11, 2, NESOp.ora, NESAddressing.indirectY, 5, 0),
+
+  /// ERA
+  NESOpCode(0x49, 2, NESOp.era, NESAddressing.immediate, 2, 0),
+  NESOpCode(0x45, 2, NESOp.era, NESAddressing.zeroPage, 3, 0),
+  NESOpCode(0x55, 2, NESOp.era, NESAddressing.zeroPageX, 4, 0),
+  NESOpCode(0x40, 3, NESOp.era, NESAddressing.absolute, 4, 0),
+  NESOpCode(0x50, 3, NESOp.era, NESAddressing.absoluteX, 4, 1),
+  NESOpCode(0x59, 3, NESOp.era, NESAddressing.absoluteY, 4, 1),
+  NESOpCode(0x41, 2, NESOp.era, NESAddressing.indirectX, 6, 0),
+  NESOpCode(0x51, 2, NESOp.era, NESAddressing.indirectY, 5, 1),
 ];
