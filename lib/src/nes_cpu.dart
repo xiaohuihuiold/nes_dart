@@ -20,6 +20,46 @@ enum NESCpuInterrupt {
   const NESCpuInterrupt(this.address, this.priority);
 }
 
+/// 寄存器
+enum NESCpuRegister {
+  // 8位累加器
+  accumulator,
+  // 8位X变址寄存器
+  xIndex,
+  // 8位Y变址寄存器
+  yIndex,
+  // 8位状态寄存器,详细状态见[NESCpuStatusRegister]
+  status,
+  // 16位指令计数器
+  programCounter,
+  // 8位栈指针
+  stackPointer,
+}
+
+/// 状态寄存器
+enum NESCpuStatusRegister {
+  // 进位标记,指令结果是否进位
+  c(1 << 0),
+  // 零标记,指令结果是否为0
+  z(1 << 1),
+  // 禁止中断标记,除NMI中断
+  i(1 << 2),
+  // 十进制模式标记,NES无作用
+  d(1 << 3),
+  // BRK中断时被设置
+  b(1 << 4),
+  // 未使用
+  r(1 << 5),
+  // 溢出标记,指令结果溢出
+  v(1 << 6),
+  // 符号标记
+  s(1 << 7);
+
+  final int bit;
+
+  const NESCpuStatusRegister(this.bit);
+}
+
 /// CPU
 class NESCpu {
   /// 模拟器
