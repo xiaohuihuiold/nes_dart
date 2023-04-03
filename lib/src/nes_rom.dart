@@ -16,13 +16,16 @@ enum NESMirrorType {
 
 /// 控制台类型
 enum NESConsoleType {
-  // Nintendo Entertainment System/Family Computer
+  /// Nintendo Entertainment System/Family Computer
   nesc,
-  // Nintendo Vs. System
+
+  /// Nintendo Vs. System
   nvs,
-  // Nintendo Playchoice 10
+
+  /// Nintendo Playchoice 10
   np10,
-  // Extended Console Type
+
+  /// Extended Console Type
   ect,
 }
 
