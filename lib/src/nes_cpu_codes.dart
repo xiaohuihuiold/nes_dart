@@ -79,7 +79,19 @@ enum NESOp {
   ora('ORA'),
 
   /// 值与累加器做异或运算,结果放入累加器A
-  era('ERA');
+  era('ERA'),
+
+  /// X变址寄存器加1
+  inx('INX'),
+
+  /// X变址寄存器减1
+  dex('DEX'),
+
+  /// Y变址寄存器加1
+  iny('INY'),
+
+  /// Y变址寄存器减1
+  dey('DEY');
 
   final String name;
 
@@ -219,4 +231,16 @@ final nesCpuCodes = [
   NESOpCode(0x59, 3, NESOp.era, NESAddressing.absoluteY, 4, 1),
   NESOpCode(0x41, 2, NESOp.era, NESAddressing.indirectX, 6, 0),
   NESOpCode(0x51, 2, NESOp.era, NESAddressing.indirectY, 5, 1),
+
+  /// INX
+  NESOpCode(0xE8, 1, NESOp.inx, NESAddressing.implied, 2, 0),
+
+  /// DEX
+  NESOpCode(0xCA, 1, NESOp.dex, NESAddressing.implied, 2, 0),
+
+  /// INY
+  NESOpCode(0xC8, 1, NESOp.iny, NESAddressing.implied, 2, 0),
+
+  /// DEY
+  NESOpCode(0x88, 1, NESOp.dey, NESAddressing.implied, 2, 0),
 ];
