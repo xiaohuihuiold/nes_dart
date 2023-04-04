@@ -24,61 +24,61 @@ enum NESCpuInterrupt {
 }
 
 /// 寄存器
-enum NESCpuRegister {
+class NESCpuRegisters {
   /// 8位累加器
-  accumulator,
+  int acc = 0;
 
   /// 8位X变址寄存器
-  xIndex,
+  int x = 0;
 
   /// 8位Y变址寄存器
-  yIndex,
+  int y = 0;
 
-  /// 8位状态寄存器,详细状态见[NESCpuStatusRegister]
-  status,
+  /// 8位状态寄存器
+  final status = NESCpuStatusRegisters();
 
   /// 16位指令计数器
-  programCounter,
+  int pc = 0;
 
   /// 8位栈指针
-  stackPointer,
+  int sp = 0;
 }
 
 /// 状态寄存器
-enum NESCpuStatusRegister {
+class NESCpuStatusRegisters {
   /// 进位标记,指令结果是否进位
-  c(1 << 0),
+  int c = 0;
 
   /// 零标记,指令结果是否为0
-  z(1 << 1),
+  int z = 0;
 
   /// 禁止中断标记,除NMI中断
-  i(1 << 2),
+  /// 1为禁止
+  int i = 0;
 
   /// 十进制模式标记,NES无作用
-  d(1 << 3),
+  int d = 0;
 
   /// BRK中断时被设置
-  b(1 << 4),
+  int b = 0;
 
   /// 未使用
-  r(1 << 5),
+  int r = 0;
 
   /// 溢出标记,指令结果溢出
-  v(1 << 6),
+  int v = 0;
 
   /// 符号标记
-  s(1 << 7);
-
-  final int bit;
-
-  const NESCpuStatusRegister(this.bit);
+  int s = 0;
 }
 
 /// CPU
 class NESCpu {
   /// 模拟器
   final NESEmulator emulator;
+
+  /// 寄存器
+  final registers = NESCpuRegisters();
 
   NESCpu(this.emulator);
 
