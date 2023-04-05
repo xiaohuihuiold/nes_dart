@@ -175,43 +175,58 @@ class NESCpu {
 
   /// 地址是当前PC位置
   int _addressingImmediate() {
-    return registers.pc;
+    final address = registers.pc;
+    registers.pc++;
+    return address;
   }
 
   /// 地址是当前PC位置的值,16位
   int _addressingAbsolute() {
-    return emulator.mapper.read16(registers.pc);
+    final address = emulator.mapper.read16(registers.pc);
+    registers.pc += 2;
+    return address;
   }
 
   /// 地址是当前PC位置的值,8位
   int _addressingZeroPage() {
-    return emulator.mapper.read(registers.pc);
+    final address = emulator.mapper.read(registers.pc);
+    registers.pc++;
+    return address;
   }
 
   /// PC位置的值加上X变址寄存器的值
   int _addressingAbsoluteX() {
-    return registers.x + emulator.mapper.read16(registers.pc);
+    final address = registers.x + emulator.mapper.read16(registers.pc);
+    registers.pc += 2;
+    return address;
   }
 
   /// PC位置的值加上Y变址寄存器的值
   int _addressingAbsoluteY() {
-    return registers.y + emulator.mapper.read16(registers.pc);
+    final address = registers.y + emulator.mapper.read16(registers.pc);
+    registers.pc += 2;
+    return address;
   }
 
   /// PC的8位值加上X变址寄存器的值,并取前8位
   int _addressingZeroPageX() {
-    return (registers.x + emulator.mapper.read(registers.pc)) & 0xFF;
+    final address = (registers.x + emulator.mapper.read(registers.pc)) & 0xFF;
+    registers.pc++;
+    return address;
   }
 
   /// PC的8位值加上Y变址寄存器的值,并取前8位
   int _addressingZeroPageY() {
-    return (registers.y + emulator.mapper.read(registers.pc)) & 0xFF;
+    final address = (registers.y + emulator.mapper.read(registers.pc)) & 0xFF;
+    registers.pc++;
+    return address;
   }
 
   /// 16位,读取PC位置的值指向的地址值作为地址
   /// 当地址是$xxFF时,PC位置的下一个地址把FF变成00
   int _addressingIndirect() {
     final temp = emulator.mapper.read16(registers.pc);
+    registers.pc += 2;
     if (temp & 0xFF == 0xFF) {
       // 实现$xxFF
       return emulator.mapper.read(temp) |
@@ -225,17 +240,21 @@ class NESCpu {
   /// 新的地址读取两个字节作为新的地址
   int _addressingIndirectX() {
     final temp = emulator.mapper.read(registers.pc) + registers.x;
+    registers.pc++;
     return emulator.mapper.read16(temp);
   }
 
   /// PC的值作为地址,并读取地址的值与Y变址寄存器相加
   int _addressingIndirectY() {
     final temp = emulator.mapper.read(registers.pc);
+    registers.pc++;
     return emulator.mapper.read16(temp) + registers.y;
   }
 
   /// PC加上当前地址值偏移
   int _addressingRelative() {
-    return emulator.mapper.read(registers.pc) + registers.pc + 1;
+    final address = emulator.mapper.read(registers.pc) + registers.pc + 1;
+    registers.pc++;
+    return address;
   }
 }
