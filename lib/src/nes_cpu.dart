@@ -27,22 +27,46 @@ enum NESCpuInterrupt {
 /// 寄存器
 class NESCpuRegisters {
   /// 8位累加器
-  int acc = 0;
+  int _acc = 0;
 
   /// 8位X变址寄存器
-  int x = 0;
+  int _x = 0;
 
   /// 8位Y变址寄存器
-  int y = 0;
+  int _y = 0;
 
   /// 8位状态寄存器
-  int status = 0;
+  int _status = 0;
 
   /// 16位指令计数器
-  int pc = 0;
+  int _pc = 0;
 
   /// 8位栈指针
-  int sp = 0;
+  int _sp = 0;
+
+  int get acc => _acc;
+
+  set acc(int value) => _acc = value & 0xFF;
+
+  int get x => _x;
+
+  set x(int value) => _x = value & 0xFF;
+
+  int get y => _y;
+
+  set y(int value) => _y = value & 0xFF;
+
+  int get status => _status;
+
+  set status(int value) => _status = value & 0xFF;
+
+  int get pc => _pc;
+
+  set pc(int value) => _pc = value & 0xFFFF;
+
+  int get sp => _sp;
+
+  set sp(int value) => _sp = value & 0xFF;
 
   /// 获取状态寄存器flag
   int getStatus(NESCpuStatusRegister flag) {
@@ -116,7 +140,7 @@ class NESCpu {
 
   /// 寻址
   int getAddress(NESAddressing mode) {
-    return _addressingMapping[mode]?.call() ?? 0;
+    return (_addressingMapping[mode]?.call() ?? 0) & 0xFFFF;
   }
 
   /// 重置
@@ -151,58 +175,67 @@ class NESCpu {
 
   /// 地址是当前PC位置
   int _addressingImmediate() {
-    final address = registers.pc;
-    registers.pc++;
-    return address;
+    return registers.pc;
   }
 
+  /// 地址是当前PC位置的值,16位
   int _addressingAbsolute() {
-    // TODO: 实现
-    throw Exception('未实现');
+    return emulator.mapper.read16(registers.pc);
   }
 
+  /// 地址是当前PC位置的值,8位
   int _addressingZeroPage() {
-    // TODO: 实现
-    throw Exception('未实现');
+    return emulator.mapper.read(registers.pc);
   }
 
+  /// PC位置的值加上X变址寄存器的值
   int _addressingAbsoluteX() {
-    // TODO: 实现
-    throw Exception('未实现');
+    return registers.x + emulator.mapper.read16(registers.pc);
   }
 
+  /// PC位置的值加上Y变址寄存器的值
   int _addressingAbsoluteY() {
-    // TODO: 实现
-    throw Exception('未实现');
+    return registers.y + emulator.mapper.read16(registers.pc);
   }
 
+  /// PC的8位值加上X变址寄存器的值,并取前8位
   int _addressingZeroPageX() {
-    // TODO: 实现
-    throw Exception('未实现');
+    return (registers.x + emulator.mapper.read(registers.pc)) & 0xFF;
   }
 
+  /// PC的8位值加上Y变址寄存器的值,并取前8位
   int _addressingZeroPageY() {
-    // TODO: 实现
-    throw Exception('未实现');
+    return (registers.y + emulator.mapper.read(registers.pc)) & 0xFF;
   }
 
+  /// 16位,读取PC位置的值指向的地址值作为地址
+  /// 当地址是$xxFF时,PC位置的下一个地址把FF变成00
   int _addressingIndirect() {
-    // TODO: 实现
-    throw Exception('未实现');
+    final temp = emulator.mapper.read16(registers.pc);
+    if (temp & 0xFF == 0xFF) {
+      // 实现$xxFF
+      return emulator.mapper.read(temp) |
+          (emulator.mapper.read(temp & 0xFF00) << 8);
+    } else {
+      return emulator.mapper.read16(temp);
+    }
   }
 
+  /// PC的值与X变址寄存器相加得到新的地址
+  /// 新的地址读取两个字节作为新的地址
   int _addressingIndirectX() {
-    // TODO: 实现
-    throw Exception('未实现');
+    final temp = emulator.mapper.read(registers.pc) + registers.x;
+    return emulator.mapper.read16(temp);
   }
 
+  /// PC的值作为地址,并读取地址的值与Y变址寄存器相加
   int _addressingIndirectY() {
-    // TODO: 实现
-    throw Exception('未实现');
+    final temp = emulator.mapper.read(registers.pc);
+    return emulator.mapper.read16(temp) + registers.y;
   }
 
+  /// PC加上当前地址值偏移
   int _addressingRelative() {
-    // TODO: 实现
-    throw Exception('未实现');
+    return emulator.mapper.read(registers.pc) + registers.pc + 1;
   }
 }
