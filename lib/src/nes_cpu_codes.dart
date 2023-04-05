@@ -543,14 +543,19 @@ final nesCpuCodes = [
 
   /// RTI
   NESOpCode(0x4D, 1, NESOp.rti, NESAddressing.implied, 6, 0),
+
   /// ALR
   NESOpCode(0x4B, 2, NESOp.alr, NESAddressing.immediate, 2, 0),
+
   /// ANC
   NESOpCode(0x0B, 2, NESOp.anc, NESAddressing.immediate, 2, 0),
+
   /// ARR
   NESOpCode(0x6B, 2, NESOp.arr, NESAddressing.immediate, 2, 0),
+
   /// AXS
   NESOpCode(0xCB, 2, NESOp.axs, NESAddressing.immediate, 2, 0),
+
   /// LAX
   NESOpCode(0xA7, 2, NESOp.lax, NESAddressing.zeroPage, 3, 0),
   NESOpCode(0xB7, 2, NESOp.lax, NESAddressing.zeroPageY, 4, 0),
