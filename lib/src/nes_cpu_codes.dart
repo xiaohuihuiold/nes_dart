@@ -166,7 +166,49 @@ enum NESOp {
   php('PHP'),
 
   /// 状态移出栈顶
-  plp('PLP');
+  plp('PLP'),
+
+  /// 跳转
+  jmp('JMP'),
+
+  /// Z等于1跳转
+  beq('BEQ'),
+
+  /// Z等于0跳转
+  bne('BNE'),
+
+  /// C等于1跳转
+  bcs('BCS'),
+
+  /// C等于0跳转
+  bcc('BCC'),
+
+  /// S等于1跳转
+  bmi('BMI'),
+
+  /// S等于0跳转
+  bpl('BPL'),
+
+  /// V等于1跳转
+  bvs('BVS'),
+
+  /// V等于0跳转
+  bvc('BVC'),
+
+  /// 跳转子程序
+  jsr('JSR'),
+
+  /// 从子程序返回
+  rts('RTS'),
+
+  /// 无操作
+  nop('NOP'),
+
+  /// 强制中断
+  brk('BRK'),
+
+  /// 从中断返回
+  rti('RTI');
 
   final String name;
 
@@ -421,4 +463,47 @@ final nesCpuCodes = [
 
   /// PLP
   NESOpCode(0x28, 1, NESOp.plp, NESAddressing.implied, 4, 0),
+
+  /// JMP
+  NESOpCode(0x4C, 3, NESOp.jmp, NESAddressing.absolute, 3, 0),
+  NESOpCode(0x6C, 3, NESOp.jmp, NESAddressing.indirect, 5, 0),
+
+  /// BEQ
+  NESOpCode(0xF0, 2, NESOp.beq, NESAddressing.relative, 2, 1),
+
+  /// BNE
+  NESOpCode(0xD0, 2, NESOp.bne, NESAddressing.relative, 2, 1),
+
+  /// BCS
+  NESOpCode(0xB0, 2, NESOp.bcs, NESAddressing.relative, 2, 1),
+
+  /// BCC
+  NESOpCode(0x90, 2, NESOp.bcc, NESAddressing.relative, 2, 1),
+
+  /// BMI
+  NESOpCode(0x30, 2, NESOp.bmi, NESAddressing.relative, 2, 1),
+
+  /// BPL
+  NESOpCode(0x10, 2, NESOp.bpl, NESAddressing.relative, 2, 1),
+
+  /// BVS
+  NESOpCode(0x70, 2, NESOp.bvs, NESAddressing.relative, 2, 1),
+
+  /// BVC
+  NESOpCode(0x50, 2, NESOp.bvc, NESAddressing.relative, 2, 1),
+
+  /// JSR
+  NESOpCode(0x20, 3, NESOp.jsr, NESAddressing.absolute, 6, 0),
+
+  /// RTS
+  NESOpCode(0x60, 1, NESOp.rts, NESAddressing.implied, 6, 0),
+
+  /// NOP
+  NESOpCode(0xEA, 1, NESOp.nop, NESAddressing.implied, 2, 0),
+
+  /// BRK
+  NESOpCode(0x00, 1, NESOp.brk, NESAddressing.implied, 7, 0),
+
+  /// RTI
+  NESOpCode(0x4D, 1, NESOp.rti, NESAddressing.implied, 6, 0),
 ];
