@@ -48,6 +48,9 @@ enum NESAddressing {
 }
 
 /// 寻址
+typedef AddressingCallback = int Function();
+
+/// 寻址
 class NESCpuAddressing {
   /// CPU
   final NESCpu cpu;
@@ -59,7 +62,7 @@ class NESCpuAddressing {
   NESCpuRegisters get registers => cpu.registers;
 
   /// 寻址模式
-  late final _addressingMapping = <NESAddressing, int Function()>{
+  late final _addressingMapping = <NESAddressing, AddressingCallback>{
     NESAddressing.accumulator: _addressingAccumulator,
     NESAddressing.implied: _addressingImplied,
     NESAddressing.immediate: _addressingImmediate,

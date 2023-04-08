@@ -1,7 +1,9 @@
+import 'nes_cpu_executor.dart';
 import 'nes_cpu_addressing.dart';
 import 'logger.dart';
 import 'nes_emulator.dart';
 import 'nes_cpu_registers.dart';
+import 'nes_cpu_codes.dart';
 
 /// CPU中断
 ///
@@ -36,7 +38,26 @@ class NESCpu {
   /// 寻址
   late final addressing = NESCpuAddressing(this);
 
+  /// 指令执行器
+  late final executor = NESCpuExecutor(this);
+
+  /// 周期计数
+  int cycleCount = 0;
+
   NESCpu(this.emulator);
+
+  /// 执行一次
+  void execute() {
+    final opCode = emulator.mapper.read(registers.pc);
+    registers.pc++;
+    final op = NESCpuCodes.getOP(opCode);
+    if (op.op == NESOp.error) {
+      printError('执行错误');
+    }
+    final address = addressing.getAddress(op.addressing);
+    executor.execute(op, address);
+    cycleCount += op.cycles;
+  }
 
   /// 重置
   void reset() {
@@ -57,5 +78,11 @@ class NESCpu {
     logger.i(
         'IRQ/BRK: \$$irqAddress, NMI: \$$nmiAddress, RESET: \$$resetAddress');
     logger.v('CPU已重置');
+  }
+
+  /// 打印错误信息
+  void printError(String message) {
+    logger.e('$message: '
+        '${registers.pc.toRadixString(16).toUpperCase().padLeft(4, '0')}');
   }
 }

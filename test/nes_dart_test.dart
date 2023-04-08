@@ -17,47 +17,15 @@ void main() {
     print(rom);
     final emulator = NESEmulator(rom: rom);
     emulator.run();
-
-    // 输出指令
-    final prg = emulator.rom.prgRom;
-    bool error = false;
-    const addressPRGRom = NESMapper000.addressPRGRom;
-    for (int i = 0; i < prg.length;) {
-      final address = addressPRGRom + i;
-      final byte = emulator.mapper.read(address);
-      final op = NESCpuCodes.getOP(byte);
-
-      if (op.op == NESOp.error) {
-        error = true;
-        print('错误: ${byte.toRadixString(16)}');
-        break;
-      }
-
-      final stringBuffer = StringBuffer();
-      final addressStr =
-          address.toRadixString(16).toUpperCase().padLeft(4, '0');
-      stringBuffer.write(addressStr);
-      stringBuffer.write(': ');
-      stringBuffer.write(op.op.name);
-      if (op.size > 1) {
-        String value = emulator.mapper
-            .read(address + 1)
-            .toRadixString(16)
-            .toUpperCase()
-            .padLeft(2, '0');
-        if (op.size == 3) {
-          value = emulator.mapper
-              .read16(address + 1)
-              .toRadixString(16)
-              .toUpperCase()
-              .padLeft(2, '0');
-        }
-        stringBuffer.write(' ');
-        stringBuffer.write(value);
-      }
-      print(stringBuffer.toString());
-      i += op.size;
-    }
-    expect(error, false);
+    emulator.cpu.execute();
+    emulator.cpu.execute();
+    emulator.cpu.execute();
+    emulator.cpu.execute();
+    emulator.cpu.execute();
+    emulator.cpu.execute();
+    emulator.cpu.execute();
+    emulator.cpu.execute();
+    emulator.cpu.execute();
+    emulator.cpu.execute();
   });
 }

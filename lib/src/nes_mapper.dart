@@ -88,6 +88,7 @@ class NESMapper000 extends NESMapper {
 
   @override
   void write(int address, int value) {
+    _printWrite(address, value);
     if (address <= NESMapper.maxRAMAddress) {
       // $2000以下的地址映射到$0000-$07FF
       _memory.write(address & NESMapper.maskRAM, value);
@@ -98,6 +99,7 @@ class NESMapper000 extends NESMapper {
 
   @override
   int read(int address) {
+    _printRead(address);
     if (address <= NESMapper.maxRAMAddress) {
       // $2000以下的地址映射到$0000-$07FF
       return _memory.read(address & NESMapper.maskRAM);
@@ -108,6 +110,7 @@ class NESMapper000 extends NESMapper {
 
   @override
   void write16(int address, int value) {
+    _printWrite(address, value);
     if (address <= NESMapper.maxRAMAddress) {
       // $2000以下的地址映射到$0000-$07FF
       _memory.write16(address & NESMapper.maskRAM, value);
@@ -118,6 +121,7 @@ class NESMapper000 extends NESMapper {
 
   @override
   int read16(int address) {
+    _printRead(address);
     if (address <= NESMapper.maxRAMAddress) {
       // $2000以下的地址映射到$0000-$07FF
       return _memory.read16(address & NESMapper.maskRAM);
@@ -151,5 +155,18 @@ class NESMapper000 extends NESMapper {
       start: start,
       end: start + Constants.byte16KiB,
     );
+  }
+
+  /// 打印读消息
+  void _printRead(int address) {
+    logger.v('R: \$${address.toRadixString(16).toUpperCase().padLeft(4, '0')}');
+  }
+
+  /// 打印写消息
+  void _printWrite(int address, int value) {
+    logger.v('W: '
+        '\$${address.toRadixString(16).toUpperCase().padLeft(4, '0')}'
+        '='
+        '${value.toRadixString(16).toUpperCase()}');
   }
 }
