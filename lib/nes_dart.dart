@@ -6,4 +6,6 @@ export 'src/nes_rom.dart';
 export 'src/nes_cpu_codes.dart';
 export 'src/nes_mapper.dart';
 export 'src/nes_memory.dart';
+export 'src/nes_cpu_addressing.dart';
+export 'src/nes_cpu_registers.dart';
 export 'src/constants.dart';

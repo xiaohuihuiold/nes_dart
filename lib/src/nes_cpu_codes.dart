@@ -1,47 +1,4 @@
-/// 寻址模式
-enum NESAddressing {
-  /// 未知
-  unknown,
-
-  /// 累加器寻址
-  accumulator,
-
-  /// 隐含寻址
-  implied,
-
-  /// 立即寻址
-  immediate,
-
-  /// 绝对寻址
-  absolute,
-
-  /// 零页寻址
-  zeroPage,
-
-  /// 绝对X变址
-  absoluteX,
-
-  /// 绝对Y变址
-  absoluteY,
-
-  /// 零页X变址
-  zeroPageX,
-
-  /// 零页Y变址
-  zeroPageY,
-
-  /// 间接寻址,JMP ($xxFF)会有问题
-  indirect,
-
-  /// 间接X变址
-  indirectX,
-
-  /// 间接Y变址
-  indirectY,
-
-  /// 相对寻址
-  relative,
-}
+import 'nes_cpu_addressing.dart';
 
 /// 指令
 enum NESOp {
