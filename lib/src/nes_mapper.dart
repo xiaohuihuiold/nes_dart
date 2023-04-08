@@ -51,6 +51,16 @@ abstract class NESMapper {
   }
 
   /// 写入数据
+  void writeS(int address, int value) {
+    _memory.writeS(address, value);
+  }
+
+  /// 读取数据
+  int readS(int address) {
+    return _memory.readS(address);
+  }
+
+  /// 写入数据
   void write16(int address, int value) {
     _memory.write16(address, value);
   }
@@ -58,6 +68,16 @@ abstract class NESMapper {
   /// 读取数据
   int read16(int address) {
     return _memory.read16(address);
+  }
+
+  /// 写入数据
+  void write16S(int address, int value) {
+    _memory.write16S(address, value);
+  }
+
+  /// 读取数据
+  int read16S(int address) {
+    return _memory.read16S(address);
   }
 
   /// 获取中断地址

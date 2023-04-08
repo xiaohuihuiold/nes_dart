@@ -28,6 +28,16 @@ class NESMemory {
     return _memory.getUint16(address, Endian.little);
   }
 
+  /// 设置int16类型数据
+  void write16S(int address, int value) {
+    _memory.setInt16(address, value, Endian.little);
+  }
+
+  /// 获取int16类型数据
+  int read16S(int address) {
+    return _memory.getInt16(address, Endian.little);
+  }
+
   /// 设置uint16类型数据
   void write16(int address, int value) {
     _memory.setUint16(address, value, Endian.little);
@@ -41,6 +51,16 @@ class NESMemory {
   /// 设置uint8类型数据
   void write(int address, int value) {
     this[address] = value;
+  }
+
+  /// 获取int8类型数据
+  int readS(int address) {
+    return _memory.getInt8(address);
+  }
+
+  /// 设置int8类型数据
+  void writeS(int address, int value) {
+    _memory.setInt8(address, value);
   }
 
   /// 获取多段数据

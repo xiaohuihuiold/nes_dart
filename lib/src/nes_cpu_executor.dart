@@ -34,7 +34,7 @@ class NESCpuExecutor {
   late final _opExecutorMapping = <NESOp, ExecutorFun>{
     NESOp.error: defaultExecutor,
     NESOp.unk: defaultExecutor,
-    NESOp.lda: defaultExecutor,
+    NESOp.lda: _executeLDA,
     NESOp.ldx: _executeLDX,
     NESOp.ldy: defaultExecutor,
     NESOp.sta: defaultExecutor,
@@ -56,7 +56,7 @@ class NESCpuExecutor {
     NESOp.tay: defaultExecutor,
     NESOp.tya: defaultExecutor,
     NESOp.tsx: defaultExecutor,
-    NESOp.txs: defaultExecutor,
+    NESOp.txs: _executeTXS,
     NESOp.clc: defaultExecutor,
     NESOp.sec: defaultExecutor,
     NESOp.cld: _executeCLD,
@@ -82,7 +82,7 @@ class NESCpuExecutor {
     NESOp.bcs: defaultExecutor,
     NESOp.bcc: defaultExecutor,
     NESOp.bmi: defaultExecutor,
-    NESOp.bpl: defaultExecutor,
+    NESOp.bpl: _executeBPL,
     NESOp.bvs: defaultExecutor,
     NESOp.bvc: defaultExecutor,
     NESOp.jsr: defaultExecutor,
@@ -112,18 +112,30 @@ class NESCpuExecutor {
     if (executor == null) {
       throw Exception('未实现的指令: ${op.op}');
     }
-    logger.v('执行: '
-        '${op.op.name} ${address.toRadixString(16).toUpperCase().padLeft(4, '0')}');
     executor(op, address);
   }
 
   /// TODO: 需要实现跨页周期+1
-  /// 值存入变址寄存器X
+  /// 值存入寄存器X
   void _executeLDX(NESOpCode op, int address) {
-    final value = mapper.read(address);
+    final value = mapper.readS(address);
     registers.x = value;
-    registers.setStatus(NESCpuStatusRegister.s, (value >> 7) & 0x01);
+    registers.setStatus(NESCpuStatusRegister.s, value < 1 ? 1 : 0);
     registers.setStatus(NESCpuStatusRegister.z, value == 0 ? 1 : 0);
+  }
+
+  /// TODO: 需要实现跨页周期+1
+  /// 值存入A累加器
+  void _executeLDA(NESOpCode op, int address) {
+    final value = mapper.readS(address);
+    registers.acc = value;
+    registers.setStatus(NESCpuStatusRegister.s, value < 1 ? 1 : 0);
+    registers.setStatus(NESCpuStatusRegister.z, value == 0 ? 1 : 0);
+  }
+
+  /// 寄存器X值存入SP
+  void _executeTXS(NESOpCode op, int address) {
+    registers.sp = registers.x;
   }
 
   /// 清除十进制模式标志
@@ -134,5 +146,13 @@ class NESCpuExecutor {
   /// 设置中断禁止标准
   void _executeSEI(NESOpCode op, int address) {
     registers.setStatus(NESCpuStatusRegister.i, 1);
+  }
+
+  /// TODO: 需要实现跨页周期同一页+1,不同页+2
+  /// 标志S=1跳转
+  void _executeBPL(NESOpCode op, int address) {
+    if (registers.getStatus(NESCpuStatusRegister.s) == 1) {
+      registers.pc = address;
+    }
   }
 }

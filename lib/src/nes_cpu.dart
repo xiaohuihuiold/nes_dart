@@ -48,6 +48,8 @@ class NESCpu {
 
   /// 执行一次
   void execute() {
+    logger.v('------$cycleCount------');
+    final beginPc = registers.pc;
     final opCode = emulator.mapper.read(registers.pc);
     registers.pc++;
     final op = NESCpuCodes.getOP(opCode);
@@ -55,6 +57,9 @@ class NESCpu {
       printError('执行错误');
     }
     final address = addressing.getAddress(op.addressing);
+    logger.d('执行: '
+    '\$${beginPc.toRadixString(16).toUpperCase().padLeft(4,'0')}: '
+        '${op.op.name} \$${address.toRadixString(16).toUpperCase().padLeft(4, '0')}');
     executor.execute(op, address);
     cycleCount += op.cycles;
   }
