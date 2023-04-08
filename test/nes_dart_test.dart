@@ -39,20 +39,22 @@ void main() {
       stringBuffer.write(addressStr);
       stringBuffer.write(': ');
       stringBuffer.write(op.op.name);
-      String value = emulator.mapper
-          .read(address + 1)
-          .toRadixString(16)
-          .toUpperCase()
-          .padLeft(2, '0');
-      if (op.size == 3) {
-        value = emulator.mapper
-            .read16(address + 1)
+      if (op.size > 1) {
+        String value = emulator.mapper
+            .read(address + 1)
             .toRadixString(16)
             .toUpperCase()
             .padLeft(2, '0');
+        if (op.size == 3) {
+          value = emulator.mapper
+              .read16(address + 1)
+              .toRadixString(16)
+              .toUpperCase()
+              .padLeft(2, '0');
+        }
+        stringBuffer.write(' ');
+        stringBuffer.write(value);
       }
-      stringBuffer.write(' ');
-      stringBuffer.write(value);
       print(stringBuffer.toString());
       i += op.size;
     }
