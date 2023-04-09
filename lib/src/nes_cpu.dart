@@ -29,6 +29,14 @@ enum NESCpuInterrupt {
 
 /// CPU
 class NESCpu {
+  /// PAL主频 Hz
+  static const clockSpeedPAL = 1773447;
+  static const clockSpeedPALus = 1000000 / clockSpeedPAL;
+
+  /// NTSC主频 Hz
+  static const clockSpeedNTSC = 1789772;
+  static const clockSpeedNTSCus = 1000000 / clockSpeedNTSC;
+
   /// 模拟器
   final NESEmulator emulator;
 
@@ -47,8 +55,9 @@ class NESCpu {
   NESCpu(this.emulator);
 
   /// 执行一次
-  void execute() {
-    logger.v('------$cycleCount------');
+  int execute() {
+    logger.v('------cycles: $cycleCount------');
+    final beginCycleCount = cycleCount;
     final beginPc = registers.pc;
     final opCode = emulator.mapper.read(registers.pc);
     registers.pc++;
@@ -58,10 +67,11 @@ class NESCpu {
     }
     final address = addressing.getAddress(op.addressing);
     logger.d('执行: '
-    '\$${beginPc.toRadixString(16).toUpperCase().padLeft(4,'0')}: '
+        '\$${beginPc.toRadixString(16).toUpperCase().padLeft(4, '0')}: '
         '${op.op.name} \$${address.toRadixString(16).toUpperCase().padLeft(4, '0')}');
     executor.execute(op, address);
     cycleCount += op.cycles;
+    return cycleCount - beginCycleCount;
   }
 
   /// 重置

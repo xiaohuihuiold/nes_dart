@@ -26,6 +26,15 @@ abstract class NESMapper {
   /// RAM最大地址
   static const maxRAMAddress = 0x1FFF;
 
+  /// PPU地址mask
+  static const ppuMask = 0x2007;
+
+  /// PPU起始地址
+  static const ppuStartAddress = 0x2000;
+
+  /// PPU结束地址
+  static const ppuEndAddress = 0x3FFFF;
+
   /// 模拟器
   final NESEmulator emulator;
 
@@ -112,6 +121,9 @@ class NESMapper000 extends NESMapper {
     if (address <= NESMapper.maxRAMAddress) {
       // $2000以下的地址映射到$0000-$07FF
       _memory.write(address & NESMapper.maskRAM, value);
+    } else if (address <= NESMapper.maxRAMAddress) {
+      // $2000-$3FFF 映射到PPU寄存器
+      _regPPUWrite(address & NESMapper.ppuMask, value);
     } else {
       super.write(address, value);
     }
@@ -123,6 +135,9 @@ class NESMapper000 extends NESMapper {
     if (address <= NESMapper.maxRAMAddress) {
       // $2000以下的地址映射到$0000-$07FF
       return _memory.read(address & NESMapper.maskRAM);
+    } else if (address <= NESMapper.maxRAMAddress) {
+      // $2000-$3FFF 映射到PPU寄存器
+      return _regPPURead(address & NESMapper.ppuMask);
     } else {
       return super.read(address);
     }
@@ -134,6 +149,9 @@ class NESMapper000 extends NESMapper {
     if (address <= NESMapper.maxRAMAddress) {
       // $2000以下的地址映射到$0000-$07FF
       _memory.write16(address & NESMapper.maskRAM, value);
+    } else if (address <= NESMapper.maxRAMAddress) {
+      // $2000-$3FFF 映射到PPU寄存器
+      _regPPUWrite16(address & NESMapper.ppuMask, value);
     } else {
       super.write16(address, value);
     }
@@ -145,9 +163,32 @@ class NESMapper000 extends NESMapper {
     if (address <= NESMapper.maxRAMAddress) {
       // $2000以下的地址映射到$0000-$07FF
       return _memory.read16(address & NESMapper.maskRAM);
+    } else if (address <= NESMapper.maxRAMAddress) {
+      // $2000-$3FFF 映射到PPU寄存器
+      return _regPPURead16(address & NESMapper.ppuMask);
     } else {
       return super.read16(address);
     }
+  }
+
+  /// PPU寄存器写入
+  void _regPPUWrite(int address, int value) {
+    _memory.write(address, value);
+  }
+
+  /// PPU寄存器读取
+  int _regPPURead(int address) {
+    return _memory.read(address);
+  }
+
+  /// PPU寄存器写入
+  void _regPPUWrite16(int address, int value) {
+    _memory.write16(address, value);
+  }
+
+  /// PPU寄存器读取
+  int _regPPURead16(int address) {
+    return _memory.read16(address);
   }
 
   void _loadPRGRom() {

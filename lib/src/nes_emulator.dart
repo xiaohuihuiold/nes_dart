@@ -34,6 +34,12 @@ class NESEmulator {
 
   NESEmulatorState get state => _state;
 
+  /// 最近一条指令结束时间
+  int _lastOpTime = DateTime.now().microsecondsSinceEpoch;
+
+  /// CPU循环是否开启中
+  bool _cpuRunning = false;
+
   NESEmulator({
     required this.rom,
   }) {
@@ -50,6 +56,7 @@ class NESEmulator {
     reset();
     _state = NESEmulatorState.running;
     logger.i('模拟器开始运行...');
+    _startCPULoop();
   }
 
   /// 重置
@@ -58,6 +65,16 @@ class NESEmulator {
     cpu.reset();
     ppu.reset();
     logger.i('模拟器已重置');
+  }
+
+  /// 恢复
+  void resume() {
+    if (state != NESEmulatorState.paused) {
+      logger.w('模拟器不在暂停中');
+      return;
+    }
+    _state = NESEmulatorState.running;
+    _startCPULoop();
   }
 
   /// 暂停
@@ -74,6 +91,30 @@ class NESEmulator {
   void stop() {
     _state = NESEmulatorState.stopped;
     logger.i('模拟器已停止');
+  }
+
+  /// TODO: 优化
+  /// 开始CPU循环
+  Future<void> _startCPULoop() async {
+    if (_cpuRunning) {
+      return;
+    }
+    _cpuRunning = true;
+    while (state == NESEmulatorState.running) {
+      final cycleCount = cpu.execute();
+      // 计算延时
+      int timeUs = (cycleCount * NESCpu.clockSpeedNTSCus).toInt();
+      final now = DateTime.now().microsecondsSinceEpoch;
+      final want = _lastOpTime + timeUs;
+      timeUs -= now - want;
+      Duration duration = Duration.zero;
+      if (timeUs > 0) {
+        duration = Duration(microseconds: timeUs);
+      }
+      await Future.delayed(duration);
+      _lastOpTime = DateTime.now().microsecondsSinceEpoch;
+    }
+    _cpuRunning = false;
   }
 
   /// 打印指令

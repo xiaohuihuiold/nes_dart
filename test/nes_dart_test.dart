@@ -17,15 +17,6 @@ void main() {
     print(rom);
     final emulator = NESEmulator(rom: rom);
     emulator.run();
-    emulator.cpu.execute();
-    emulator.cpu.execute();
-    emulator.cpu.execute();
-    emulator.cpu.execute();
-    emulator.cpu.execute();
-    emulator.cpu.execute();
-    emulator.cpu.execute();
-    emulator.cpu.execute();
-    emulator.cpu.execute();
-    emulator.cpu.execute();
-  });
+    await Future.delayed(const Duration(days: 1));
+  }, timeout: const Timeout(Duration(days: 1)));
 }
