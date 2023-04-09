@@ -66,7 +66,6 @@ class NESCpu {
 
   /// 重置
   void reset() {
-    emulator.mapper.reset();
     registers.pc = emulator.mapper.readInterruptAddress(NESCpuInterrupt.reset);
     final irqAddress = emulator.mapper
         .readInterruptAddress(NESCpuInterrupt.irq)

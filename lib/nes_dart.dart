@@ -9,4 +9,5 @@ export 'src/nes_memory.dart';
 export 'src/nes_cpu_addressing.dart';
 export 'src/nes_cpu_registers.dart';
 export 'src/nes_cpu_executor.dart';
+export 'src/nes_ppu.dart';
 export 'src/constants.dart';

@@ -1,5 +1,5 @@
-import 'package:nes_dart/src/nes_cpu.dart';
-
+import 'nes_cpu.dart';
+import 'nes_ppu.dart';
 import 'nes_mapper.dart';
 import 'logger.dart';
 import 'nes_cpu_codes.dart';
@@ -26,6 +26,9 @@ class NESEmulator {
   /// CPU
   late final cpu = NESCpu(this);
 
+  /// PPU
+  late final ppu = NESPpu(this);
+
   /// 模拟器状态
   NESEmulatorState _state = NESEmulatorState.idle;
 
@@ -51,7 +54,9 @@ class NESEmulator {
 
   /// 重置
   void reset() {
+    mapper.reset();
     cpu.reset();
+    ppu.reset();
     logger.i('模拟器已重置');
   }
 
