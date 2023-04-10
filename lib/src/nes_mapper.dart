@@ -220,14 +220,19 @@ class NESMapper000 extends NESMapper {
 
   /// 打印读消息
   void _printRead(int address) {
-    logger.v('R: \$${address.toRadixString(16).toUpperCase().padLeft(4, '0')}');
+    if (emulator.logMemory) {
+      logger
+          .v('R: \$${address.toRadixString(16).toUpperCase().padLeft(4, '0')}');
+    }
   }
 
   /// 打印写消息
   void _printWrite(int address, int value) {
-    logger.v('W: '
-        '\$${address.toRadixString(16).toUpperCase().padLeft(4, '0')}'
-        '='
-        '${value.toRadixString(16).toUpperCase()}');
+    if (emulator.logMemory) {
+      logger.v('W: '
+          '\$${address.toRadixString(16).toUpperCase().padLeft(4, '0')}'
+          '='
+          '${value.toRadixString(16).toUpperCase()}');
+    }
   }
 }

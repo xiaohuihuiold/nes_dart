@@ -1,7 +1,15 @@
-import 'package:nes_dart/src/logger.dart';
+import 'logger.dart';
+import 'nes_cpu.dart';
+import 'nes_emulator.dart';
 
 /// 寄存器
 class NESCpuRegisters {
+  /// CPU
+  final NESCpu cpu;
+
+  /// 模拟器
+  NESEmulator get emulator => cpu.emulator;
+
   /// 8位累加器
   int _acc = 0;
 
@@ -24,21 +32,27 @@ class NESCpuRegisters {
 
   set acc(int value) {
     _acc = value & 0xFF;
-    logger.v('REG: SET ACC=${_acc.toRadixString(16).toUpperCase()}');
+    if (emulator.logRegisters) {
+      logger.v('REG: SET ACC=${_acc.toRadixString(16).toUpperCase()}');
+    }
   }
 
   int get x => _x;
 
   set x(int value) {
     _x = value & 0xFF;
-    logger.v('REG: SET X=${_x.toRadixString(16).toUpperCase()}');
+    if (emulator.logRegisters) {
+      logger.v('REG: SET X=${_x.toRadixString(16).toUpperCase()}');
+    }
   }
 
   int get y => _y;
 
   set y(int value) {
     _y = value & 0xFF;
-    logger.v('REG: SET Y=${_y.toRadixString(16).toUpperCase()}');
+    if (emulator.logRegisters) {
+      logger.v('REG: SET Y=${_y.toRadixString(16).toUpperCase()}');
+    }
   }
 
   int get status => _status;
@@ -49,15 +63,21 @@ class NESCpuRegisters {
 
   set pc(int value) {
     _pc = value & 0xFFFF;
-    logger.v('REG: SET PC=${_pc.toRadixString(16).toUpperCase()}');
+    if (emulator.logRegisters) {
+      logger.v('REG: SET PC=${_pc.toRadixString(16).toUpperCase()}');
+    }
   }
 
   int get sp => _sp;
 
   set sp(int value) {
     _sp = value & 0xFF;
-    logger.v('REG: SET SP=${_sp.toRadixString(16).toUpperCase()}');
+    if (emulator.logRegisters) {
+      logger.v('REG: SET SP=${_sp.toRadixString(16).toUpperCase()}');
+    }
   }
+
+  NESCpuRegisters(this.cpu);
 
   /// 获取状态寄存器flag
   int getStatus(NESCpuStatusRegister flag) {
@@ -66,7 +86,9 @@ class NESCpuRegisters {
 
   /// 设置状态寄存器flag
   void setStatus(NESCpuStatusRegister flag, int value) {
-    logger.v('REG: SET ${flag.name.toUpperCase()}=$value');
+    if (emulator.logRegisters) {
+      logger.v('REG: SET ${flag.name.toUpperCase()}=$value');
+    }
     status &= ~flag.bit;
     status |= (value & 0x01) << flag.index;
   }

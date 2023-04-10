@@ -15,6 +15,15 @@ enum NESEmulatorState {
 
 /// NES模拟器
 class NESEmulator {
+  /// 是否输出内存日志
+  bool logMemory = false;
+
+  /// 是否输出CPU日志
+  bool logCpu = false;
+
+  /// 是否输出寄存器日志
+  bool logRegisters = false;
+
   /// rom
   final NESRom rom;
 
@@ -42,6 +51,9 @@ class NESEmulator {
 
   NESEmulator({
     required this.rom,
+    this.logMemory = false,
+    this.logCpu = false,
+    this.logRegisters = false,
   }) {
     // TODO: 根据mapper编号创建
     _mapper = NESMapper000(this);
@@ -101,17 +113,16 @@ class NESEmulator {
     }
     _cpuRunning = true;
     while (state == NESEmulatorState.running) {
-      final cycleCount = cpu.execute();
-      // 计算延时
-      int timeUs = (cycleCount * NESCpu.clockSpeedNTSCus).toInt();
-      final now = DateTime.now().microsecondsSinceEpoch;
-      final want = _lastOpTime + timeUs;
-      timeUs -= now - want;
-      Duration duration = Duration.zero;
-      if (timeUs > 0) {
-        duration = Duration(microseconds: timeUs);
+      final beginTime = DateTime.now().microsecondsSinceEpoch;
+      int cycleCount = 0;
+      while (cycleCount < NESCpu.clockSpeedNTSC) {
+        cycleCount += cpu.execute();
       }
-      await Future.delayed(duration);
+      final spendTime = DateTime.now().microsecondsSinceEpoch - beginTime;
+      logger.v('执行时间: ${spendTime}us');
+      final delay =
+          ((1000 * 1000 / 50) - spendTime).toInt().clamp(0, 1000 * 1000);
+      await Future.delayed(Duration(microseconds: delay));
       _lastOpTime = DateTime.now().microsecondsSinceEpoch;
     }
     _cpuRunning = false;

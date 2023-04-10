@@ -41,7 +41,7 @@ class NESCpu {
   final NESEmulator emulator;
 
   /// 寄存器
-  final registers = NESCpuRegisters();
+  late final registers = NESCpuRegisters(this);
 
   /// 寻址
   late final addressing = NESCpuAddressing(this);
@@ -56,19 +56,23 @@ class NESCpu {
 
   /// 执行一次
   int execute() {
-    logger.v('------cycles: $cycleCount------');
+    if (emulator.logCpu) {
+      logger.v('------cycles: $cycleCount------');
+    }
     final beginCycleCount = cycleCount;
     final beginPc = registers.pc;
     final opCode = emulator.mapper.read(registers.pc);
     registers.pc++;
     final op = NESCpuCodes.getOP(opCode);
     if (op.op == NESOp.error) {
-      printError('执行错误');
+      logger.e('执行错误');
     }
     final address = addressing.getAddress(op.addressing);
-    logger.d('执行: '
-        '\$${beginPc.toRadixString(16).toUpperCase().padLeft(4, '0')}: '
-        '${op.op.name} \$${address.toRadixString(16).toUpperCase().padLeft(4, '0')}');
+    if (emulator.logCpu) {
+      logger.d('执行: '
+          '\$${beginPc.toRadixString(16).toUpperCase().padLeft(4, '0')}: '
+          '${op.op.name} \$${address.toRadixString(16).toUpperCase().padLeft(4, '0')}');
+    }
     executor.execute(op, address);
     cycleCount += op.cycles;
     return cycleCount - beginCycleCount;
