@@ -249,9 +249,16 @@ class NESCpuCodes {
   }
 
   /// 指令映射
-  static final nesCpuCodeMapping = {
-    for (final code in nesCpuCodes) code.opCode: code
-  };
+  static final nesCpuCodeMapping = _initMapping();
+
+  /// 初始化指令
+  static List<NESOpCode?> _initMapping() {
+    final list = List<NESOpCode?>.filled(0x100, null);
+    for (final opCode in nesCpuCodes) {
+      list[opCode.opCode] = opCode;
+    }
+    return list;
+  }
 
   /// 指令
   static final nesCpuCodes = [
