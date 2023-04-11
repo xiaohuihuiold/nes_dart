@@ -8,6 +8,7 @@ import 'nes_mapper.dart';
 import 'logger.dart';
 import 'nes_cpu_codes.dart';
 import 'nes_rom.dart';
+import 'utils.dart';
 
 /// 模拟器状态
 enum NESEmulatorState {
@@ -58,8 +59,8 @@ class NESEmulator {
 
   Timer? _fpsTimer;
 
-  /// 最近一条指令结束时间
-  int _lastOpTime = DateTime.now().microsecondsSinceEpoch;
+  /// 最近一条指令结束花费时间
+  int _overTime = 0;
 
   /// CPU循环是否开启中
   bool _cpuRunning = false;
@@ -134,17 +135,18 @@ class NESEmulator {
     }
     _cpuRunning = true;
     while (state == NESEmulatorState.running) {
-      final beginTime = DateTime.now().microsecondsSinceEpoch;
+      final beginTime = Time.nowUs;
       int cycleCount = 0;
       while (cycleCount < NESCpu.clockSpeedNTSC / frameRate) {
         cycleCount += cpu.execute();
       }
-      final spendTime = DateTime.now().microsecondsSinceEpoch - beginTime;
+      final spendTime = Time.nowUs - beginTime + _overTime;
+      final lastTime = Time.nowUs;
       final delay =
           ((1000 * 1000 / frameRate) - spendTime).toInt().clamp(0, 1000 * 1000);
       logger.v('帧: $cycleCount(cycles) $spendTime(us) 延迟: $delay(us)');
       await Future.delayed(Duration(microseconds: delay));
-      _lastOpTime = DateTime.now().microsecondsSinceEpoch;
+      _overTime = Time.nowUs - lastTime - delay;
       _fps++;
     }
     _cpuRunning = false;
