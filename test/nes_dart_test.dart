@@ -16,6 +16,10 @@ void main() {
     final rom = await NESRomLoader.loadFromPath('roms/nestest.nes');
     print(rom);
     final emulator = NESEmulator(rom: rom);
+    emulator.fpsValue.addListener(() {
+      final fps = emulator.fpsValue.value;
+      print('FPS: $fps');
+    });
     emulator.run();
     await Future.delayed(const Duration(days: 1));
   }, timeout: const Timeout(Duration(days: 1)));

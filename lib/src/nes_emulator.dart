@@ -1,3 +1,7 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+
 import 'nes_cpu.dart';
 import 'nes_ppu.dart';
 import 'nes_mapper.dart';
@@ -24,6 +28,9 @@ class NESEmulator {
   /// 是否输出寄存器日志
   bool logRegisters = false;
 
+  /// 帧率
+  final double frameRate;
+
   /// rom
   final NESRom rom;
 
@@ -43,6 +50,14 @@ class NESEmulator {
 
   NESEmulatorState get state => _state;
 
+  /// FPS
+  int _fps = 0;
+  final _fpsValue = ValueNotifier<int>(0);
+
+  ValueListenable<int> get fpsValue => _fpsValue;
+
+  Timer? _fpsTimer;
+
   /// 最近一条指令结束时间
   int _lastOpTime = DateTime.now().microsecondsSinceEpoch;
 
@@ -51,6 +66,7 @@ class NESEmulator {
 
   NESEmulator({
     required this.rom,
+    this.frameRate = 60,
     this.logMemory = false,
     this.logCpu = false,
     this.logRegisters = false,
@@ -68,6 +84,7 @@ class NESEmulator {
     reset();
     _state = NESEmulatorState.running;
     logger.i('模拟器开始运行...');
+    _startFpsTimer();
     _startCPULoop();
   }
 
@@ -86,6 +103,8 @@ class NESEmulator {
       return;
     }
     _state = NESEmulatorState.running;
+    logger.i('模拟器已恢复');
+    _startFpsTimer();
     _startCPULoop();
   }
 
@@ -96,12 +115,14 @@ class NESEmulator {
       return;
     }
     _state = NESEmulatorState.paused;
+    _stopFpsTimer();
     logger.i('模拟器已暂停');
   }
 
-  /// 暂停
+  /// 停止
   void stop() {
     _state = NESEmulatorState.stopped;
+    _stopFpsTimer();
     logger.i('模拟器已停止');
   }
 
@@ -115,17 +136,36 @@ class NESEmulator {
     while (state == NESEmulatorState.running) {
       final beginTime = DateTime.now().microsecondsSinceEpoch;
       int cycleCount = 0;
-      while (cycleCount < NESCpu.clockSpeedNTSC) {
+      while (cycleCount < NESCpu.clockSpeedNTSC / frameRate) {
         cycleCount += cpu.execute();
       }
       final spendTime = DateTime.now().microsecondsSinceEpoch - beginTime;
-      logger.v('执行时间: ${spendTime}us');
       final delay =
-          ((1000 * 1000 / 50) - spendTime).toInt().clamp(0, 1000 * 1000);
+          ((1000 * 1000 / frameRate) - spendTime).toInt().clamp(0, 1000 * 1000);
+      logger.v('帧: $cycleCount(cycles) $spendTime(us) 延迟: $delay(us)');
       await Future.delayed(Duration(microseconds: delay));
       _lastOpTime = DateTime.now().microsecondsSinceEpoch;
+      _fps++;
     }
     _cpuRunning = false;
+  }
+
+  /// 开始FPS
+  void _startFpsTimer() {
+    _fpsTimer?.cancel();
+    _fpsTimer = null;
+    _fpsTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      final fps = _fps;
+      _fps = 0;
+      _fpsValue.value = fps;
+    });
+  }
+
+  /// 停止FPS
+  void _stopFpsTimer() {
+    _fpsTimer?.cancel();
+    _fpsTimer = null;
+    _fpsValue.value = 0;
   }
 
   /// 打印指令
