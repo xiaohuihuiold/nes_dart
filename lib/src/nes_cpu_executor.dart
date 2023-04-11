@@ -31,87 +31,88 @@ class NESCpuExecutor {
   NESCpuRegisters get registers => cpu.registers;
 
   /// 指令
-  late final _opExecutorMapping = <NESOp, ExecutorFun>{
-    NESOp.error: defaultExecutor,
-    NESOp.unk: defaultExecutor,
-    NESOp.lda: _executeLDA,
-    NESOp.ldx: _executeLDX,
-    NESOp.ldy: defaultExecutor,
-    NESOp.sta: defaultExecutor,
-    NESOp.stx: defaultExecutor,
-    NESOp.sty: defaultExecutor,
-    NESOp.adc: defaultExecutor,
-    NESOp.sbc: defaultExecutor,
-    NESOp.inc: defaultExecutor,
-    NESOp.dec: defaultExecutor,
-    NESOp.and: defaultExecutor,
-    NESOp.ora: defaultExecutor,
-    NESOp.era: defaultExecutor,
-    NESOp.inx: defaultExecutor,
-    NESOp.dex: defaultExecutor,
-    NESOp.iny: defaultExecutor,
-    NESOp.dey: defaultExecutor,
-    NESOp.tax: defaultExecutor,
-    NESOp.txa: defaultExecutor,
-    NESOp.tay: defaultExecutor,
-    NESOp.tya: defaultExecutor,
-    NESOp.tsx: defaultExecutor,
-    NESOp.txs: _executeTXS,
-    NESOp.clc: defaultExecutor,
-    NESOp.sec: defaultExecutor,
-    NESOp.cld: _executeCLD,
-    NESOp.sed: defaultExecutor,
-    NESOp.clv: defaultExecutor,
-    NESOp.cli: defaultExecutor,
-    NESOp.sei: _executeSEI,
-    NESOp.cmp: defaultExecutor,
-    NESOp.cpx: defaultExecutor,
-    NESOp.cpy: defaultExecutor,
-    NESOp.bit: defaultExecutor,
-    NESOp.asl: defaultExecutor,
-    NESOp.lsr: defaultExecutor,
-    NESOp.rol: defaultExecutor,
-    NESOp.ror: defaultExecutor,
-    NESOp.pha: defaultExecutor,
-    NESOp.pla: defaultExecutor,
-    NESOp.php: defaultExecutor,
-    NESOp.plp: defaultExecutor,
-    NESOp.jmp: defaultExecutor,
-    NESOp.beq: defaultExecutor,
-    NESOp.bne: defaultExecutor,
-    NESOp.bcs: defaultExecutor,
-    NESOp.bcc: defaultExecutor,
-    NESOp.bmi: defaultExecutor,
-    NESOp.bpl: _executeBPL,
-    NESOp.bvs: defaultExecutor,
-    NESOp.bvc: defaultExecutor,
-    NESOp.jsr: defaultExecutor,
-    NESOp.rts: defaultExecutor,
-    NESOp.nop: defaultExecutor,
-    NESOp.brk: defaultExecutor,
-    NESOp.rti: defaultExecutor,
-    NESOp.alr: defaultExecutor,
-    NESOp.anc: defaultExecutor,
-    NESOp.arr: defaultExecutor,
-    NESOp.axs: defaultExecutor,
-    NESOp.lax: defaultExecutor,
-    NESOp.sax: defaultExecutor,
-    NESOp.dcp: defaultExecutor,
-    NESOp.isc: defaultExecutor,
-    NESOp.rla: defaultExecutor,
-    NESOp.rra: defaultExecutor,
-    NESOp.slo: defaultExecutor,
-    NESOp.sre: defaultExecutor,
-  };
+  late final _opExecutorMapping = _initMapping();
 
   NESCpuExecutor(this.cpu);
 
+  List<ExecutorFun?> _initMapping() {
+    final list = List<ExecutorFun?>.filled(NESOp.values.length, null);
+    list[NESOp.error.index] = defaultExecutor;
+    list[NESOp.unk.index] = defaultExecutor;
+    list[NESOp.lda.index] = _executeLDA;
+    list[NESOp.ldx.index] = _executeLDX;
+    list[NESOp.ldy.index] = defaultExecutor;
+    list[NESOp.sta.index] = defaultExecutor;
+    list[NESOp.stx.index] = defaultExecutor;
+    list[NESOp.sty.index] = defaultExecutor;
+    list[NESOp.adc.index] = defaultExecutor;
+    list[NESOp.sbc.index] = defaultExecutor;
+    list[NESOp.inc.index] = defaultExecutor;
+    list[NESOp.dec.index] = defaultExecutor;
+    list[NESOp.and.index] = defaultExecutor;
+    list[NESOp.ora.index] = defaultExecutor;
+    list[NESOp.era.index] = defaultExecutor;
+    list[NESOp.inx.index] = defaultExecutor;
+    list[NESOp.dex.index] = defaultExecutor;
+    list[NESOp.iny.index] = defaultExecutor;
+    list[NESOp.dey.index] = defaultExecutor;
+    list[NESOp.tax.index] = defaultExecutor;
+    list[NESOp.txa.index] = defaultExecutor;
+    list[NESOp.tay.index] = defaultExecutor;
+    list[NESOp.tya.index] = defaultExecutor;
+    list[NESOp.tsx.index] = defaultExecutor;
+    list[NESOp.txs.index] = _executeTXS;
+    list[NESOp.clc.index] = defaultExecutor;
+    list[NESOp.sec.index] = defaultExecutor;
+    list[NESOp.cld.index] = _executeCLD;
+    list[NESOp.sed.index] = defaultExecutor;
+    list[NESOp.clv.index] = defaultExecutor;
+    list[NESOp.cli.index] = defaultExecutor;
+    list[NESOp.sei.index] = _executeSEI;
+    list[NESOp.cmp.index] = defaultExecutor;
+    list[NESOp.cpx.index] = defaultExecutor;
+    list[NESOp.cpy.index] = defaultExecutor;
+    list[NESOp.bit.index] = defaultExecutor;
+    list[NESOp.asl.index] = defaultExecutor;
+    list[NESOp.lsr.index] = defaultExecutor;
+    list[NESOp.rol.index] = defaultExecutor;
+    list[NESOp.ror.index] = defaultExecutor;
+    list[NESOp.pha.index] = defaultExecutor;
+    list[NESOp.pla.index] = defaultExecutor;
+    list[NESOp.php.index] = defaultExecutor;
+    list[NESOp.plp.index] = defaultExecutor;
+    list[NESOp.jmp.index] = defaultExecutor;
+    list[NESOp.beq.index] = defaultExecutor;
+    list[NESOp.bne.index] = defaultExecutor;
+    list[NESOp.bcs.index] = defaultExecutor;
+    list[NESOp.bcc.index] = defaultExecutor;
+    list[NESOp.bmi.index] = defaultExecutor;
+    list[NESOp.bpl.index] = _executeBPL;
+    list[NESOp.bvs.index] = defaultExecutor;
+    list[NESOp.bvc.index] = defaultExecutor;
+    list[NESOp.jsr.index] = defaultExecutor;
+    list[NESOp.rts.index] = defaultExecutor;
+    list[NESOp.nop.index] = defaultExecutor;
+    list[NESOp.brk.index] = defaultExecutor;
+    list[NESOp.rti.index] = defaultExecutor;
+    list[NESOp.alr.index] = defaultExecutor;
+    list[NESOp.anc.index] = defaultExecutor;
+    list[NESOp.arr.index] = defaultExecutor;
+    list[NESOp.axs.index] = defaultExecutor;
+    list[NESOp.lax.index] = defaultExecutor;
+    list[NESOp.sax.index] = defaultExecutor;
+    list[NESOp.dcp.index] = defaultExecutor;
+    list[NESOp.isc.index] = defaultExecutor;
+    list[NESOp.rla.index] = defaultExecutor;
+    list[NESOp.rra.index] = defaultExecutor;
+    list[NESOp.slo.index] = defaultExecutor;
+    list[NESOp.sre.index] = defaultExecutor;
+    return list;
+  }
+
   /// 执行一次
   void execute(NESOpCode op, int address) {
-    final executor = _opExecutorMapping[op.op];
-    if (executor == null) {
-      throw Exception('未实现的指令: ${op.op}');
-    }
+    final executor = _opExecutorMapping[op.op.index] ?? defaultExecutor;
     executor(op, address);
   }
 

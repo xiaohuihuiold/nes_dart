@@ -62,27 +62,32 @@ class NESCpuAddressing {
   NESCpuRegisters get registers => cpu.registers;
 
   /// 寻址模式
-  late final _addressingMapping = <NESAddressing, AddressingCallback>{
-    NESAddressing.accumulator: _addressingAccumulator,
-    NESAddressing.implied: _addressingImplied,
-    NESAddressing.immediate: _addressingImmediate,
-    NESAddressing.absolute: _addressingAbsolute,
-    NESAddressing.zeroPage: _addressingZeroPage,
-    NESAddressing.absoluteX: _addressingAbsoluteX,
-    NESAddressing.absoluteY: _addressingAbsoluteY,
-    NESAddressing.zeroPageX: _addressingZeroPageX,
-    NESAddressing.zeroPageY: _addressingZeroPageY,
-    NESAddressing.indirect: _addressingIndirect,
-    NESAddressing.indirectX: _addressingIndirectX,
-    NESAddressing.indirectY: _addressingIndirectY,
-    NESAddressing.relative: _addressingRelative,
-  };
+  late final _addressingMapping = _initMapping();
 
   NESCpuAddressing(this.cpu);
 
+  List<AddressingCallback?> _initMapping() {
+    final list =
+        List<AddressingCallback?>.filled(NESAddressing.values.length, null);
+    list[NESAddressing.accumulator.index] = _addressingAccumulator;
+    list[NESAddressing.implied.index] = _addressingImplied;
+    list[NESAddressing.immediate.index] = _addressingImmediate;
+    list[NESAddressing.absolute.index] = _addressingAbsolute;
+    list[NESAddressing.zeroPage.index] = _addressingZeroPage;
+    list[NESAddressing.absoluteX.index] = _addressingAbsoluteX;
+    list[NESAddressing.absoluteY.index] = _addressingAbsoluteY;
+    list[NESAddressing.zeroPageX.index] = _addressingZeroPageX;
+    list[NESAddressing.zeroPageY.index] = _addressingZeroPageY;
+    list[NESAddressing.indirect.index] = _addressingIndirect;
+    list[NESAddressing.indirectX.index] = _addressingIndirectX;
+    list[NESAddressing.indirectY.index] = _addressingIndirectY;
+    list[NESAddressing.relative.index] = _addressingRelative;
+    return list;
+  }
+
   /// 寻址
   int getAddress(NESAddressing mode) {
-    return (_addressingMapping[mode]?.call() ?? 0) & 0xFFFF;
+    return (_addressingMapping[mode.index]?.call() ?? 0) & 0xFFFF;
   }
 
   /// 无需处理
