@@ -144,7 +144,7 @@ class NESEmulator {
       final lastTime = Time.nowUs;
       final delay =
           ((1000 * 1000 / frameRate) - spendTime).toInt().clamp(0, 1000 * 1000);
-      logger.v('帧: $cycleCount(cycles) $spendTime(us) 延迟: $delay(us)');
+      logger.v('帧: $cycleCount(cycles)\t $spendTime(us)\t delay: $delay(us)');
       await Future.delayed(Duration(microseconds: delay));
       _overTime = Time.nowUs - lastTime - delay;
       _fps++;
