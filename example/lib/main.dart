@@ -13,7 +13,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'NES Demo',
       themeMode: ThemeMode.dark,
-      darkTheme: ThemeData.dark(),
+      darkTheme: ThemeData.dark(
+        useMaterial3: true,
+      ),
       theme: ThemeData(
         useMaterial3: true,
         primarySwatch: Colors.blue,
