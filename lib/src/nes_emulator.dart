@@ -170,6 +170,47 @@ class NESEmulator {
     _fpsValue.value = 0;
   }
 
+  /// 获取指令
+  List<OpCodeInfo> getCodes() {
+    if (state.value != NESEmulatorState.running &&
+        state.value != NESEmulatorState.paused) {
+      logger.w('模拟器未加载程序');
+      return [];
+    }
+    final prg = rom.prgRom;
+    const addressPRGRom = NESMapper000.addressPRGRom;
+    final list = <OpCodeInfo>[];
+    for (int i = 0; i < prg.length;) {
+      final address = addressPRGRom + i;
+      final byte = mapper.readU8(address);
+      final op = NESCpuCodes.getOP(byte);
+
+      if (op.op == NESOp.error) {
+        logger.e('错误: ${byte.toRadixString(16)}');
+        break;
+      }
+
+      String? value;
+      if (op.size > 1) {
+        value = mapper
+            .readU8(address + 1)
+            .toRadixString(16)
+            .toUpperCase()
+            .padLeft(2, '0');
+        if (op.size == 3) {
+          value = mapper
+              .readU16(address + 1)
+              .toRadixString(16)
+              .toUpperCase()
+              .padLeft(2, '0');
+        }
+      }
+      list.add(OpCodeInfo(address: address, op: op, data: value));
+      i += op.size;
+    }
+    return list;
+  }
+
   /// 打印指令
   void printCodes() {
     if (state.value != NESEmulatorState.running &&
@@ -215,4 +256,18 @@ class NESEmulator {
       i += op.size;
     }
   }
+}
+
+/// 程序指令信息
+class OpCodeInfo {
+  final int address;
+  final NESOpCode op;
+
+  final String? data;
+
+  const OpCodeInfo({
+    required this.address,
+    required this.op,
+    required this.data,
+  });
 }
