@@ -207,7 +207,7 @@ class _EmulatorStatusBarState extends State<_EmulatorStatusBar> {
                     status: registers.status,
                   ),
                   _RegisterStatus(
-                    color: Colors.yellow,
+                    color: Colors.deepPurple,
                     flag: NESCpuStatusRegister.s,
                     status: registers.status,
                   ),
