@@ -74,6 +74,7 @@ class NESEmulator {
   }) {
     // TODO: 根据mapper编号创建
     _mapper = NESMapper000(this);
+    reset();
   }
 
   /// 运行模拟器
@@ -172,11 +173,6 @@ class NESEmulator {
 
   /// 获取指令
   List<OpCodeInfo> getCodes() {
-    if (state.value != NESEmulatorState.running &&
-        state.value != NESEmulatorState.paused) {
-      logger.w('模拟器未加载程序');
-      return [];
-    }
     final prg = rom.prgRom;
     const addressPRGRom = NESMapper000.addressPRGRom;
     final list = <OpCodeInfo>[];
@@ -213,11 +209,6 @@ class NESEmulator {
 
   /// 打印指令
   void printCodes() {
-    if (state.value != NESEmulatorState.running &&
-        state.value != NESEmulatorState.paused) {
-      logger.w('模拟器未加载程序');
-      return;
-    }
     final prg = rom.prgRom;
     const addressPRGRom = NESMapper000.addressPRGRom;
     for (int i = 0; i < prg.length;) {

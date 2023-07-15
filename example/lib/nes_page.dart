@@ -1,3 +1,4 @@
+import 'package:example/memory_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:nes_dart/nes_dart.dart';
 
@@ -61,7 +62,12 @@ class _NESPageState extends State<NESPage> {
 
     return Scaffold(
       floatingActionButton: controllerBar,
-      body: body,
+      body: Row(
+        children: [
+          MemoryViewer(emulator: emulator),
+          Expanded(child: body),
+        ],
+      ),
       bottomNavigationBar: _EmulatorStatusBar(emulator: emulator),
     );
   }
