@@ -22,13 +22,25 @@ class _NESPageState extends State<NESPage> {
     if (mounted) setState(() {});
   }
 
+  /// 停止
+  void _onStop() {
+    _emulator?.stop();
+    _emulator = null;
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     final emulator = _emulator;
 
     Widget body;
     if (emulator == null) {
-      body = const Center(child: CircularProgressIndicator());
+      body = Center(
+        child: AspectRatio(
+          aspectRatio: 256 / 240,
+          child: Container(color: Colors.black),
+        ),
+      );
     } else {
       body = NESView(emulator: emulator);
     }
@@ -43,12 +55,213 @@ class _NESPageState extends State<NESPage> {
       controllerBar = _EmulatorControllerBar(
         emulator: emulator,
         loadNES: _loadNES,
+        onStop: _onStop,
       );
     }
 
     return Scaffold(
       floatingActionButton: controllerBar,
       body: body,
+      bottomNavigationBar: _EmulatorStatusBar(emulator: emulator),
+    );
+  }
+}
+
+/// 状态栏
+class _EmulatorStatusBar extends StatefulWidget {
+  /// 模拟器对象
+  final NESEmulator? emulator;
+
+  const _EmulatorStatusBar({
+    super.key,
+    required this.emulator,
+  });
+
+  @override
+  State<_EmulatorStatusBar> createState() => _EmulatorStatusBarState();
+}
+
+class _EmulatorStatusBarState extends State<_EmulatorStatusBar> {
+  Widget _buildStatus(NESEmulator emulator) {
+    return Row(
+      children: [
+        ValueListenableBuilder<NESEmulatorState>(
+          valueListenable: emulator.state,
+          builder: (context, state, child) {
+            Color color = Colors.blue;
+            String text = '已就绪';
+            switch (state) {
+              case NESEmulatorState.idle:
+                color = Colors.blue;
+                text = '已就绪';
+                break;
+              case NESEmulatorState.running:
+                color = Colors.green;
+                text = '运行中';
+                break;
+              case NESEmulatorState.paused:
+                color = Colors.orange;
+                text = '已暂停';
+                break;
+              case NESEmulatorState.stopped:
+                color = Colors.grey;
+                text = '已停止';
+                break;
+            }
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: color,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Text(text),
+              ],
+            );
+          },
+        ),
+        const VerticalDivider(),
+        Expanded(
+          child: ListenableBuilder(
+            listenable: emulator.cpu.registers,
+            builder: (context, child) {
+              final registers = emulator.cpu.registers;
+              return Row(
+                children: [
+                  SizedBox(
+                    width: 60,
+                    child: Text(
+                        'PC: ${registers.pc.toRadixString(16).toUpperCase()}'),
+                  ),
+                  const VerticalDivider(),
+                  SizedBox(
+                    width: 40,
+                    child: Text(
+                        'SP: ${registers.sp.toRadixString(16).toUpperCase()}'),
+                  ),
+                  const VerticalDivider(),
+                  SizedBox(
+                    width: 40,
+                    child: Text(
+                        'X: ${registers.x.toRadixString(16).toUpperCase()}'),
+                  ),
+                  const VerticalDivider(),
+                  SizedBox(
+                    width: 40,
+                    child: Text(
+                        'Y: ${registers.y.toRadixString(16).toUpperCase()}'),
+                  ),
+                  const VerticalDivider(),
+                  SizedBox(
+                    width: 60,
+                    child: Text(
+                        'ACC: ${registers.acc.toRadixString(16).toUpperCase()}'),
+                  ),
+                  const VerticalDivider(),
+                  const SizedBox(child: Text('STATUS:')),
+                  const SizedBox(width: 4),
+                  _RegisterStatus(
+                    color: Colors.red,
+                    flag: NESCpuStatusRegister.c,
+                    status: registers.status,
+                  ),
+                  _RegisterStatus(
+                    color: Colors.green,
+                    flag: NESCpuStatusRegister.z,
+                    status: registers.status,
+                  ),
+                  _RegisterStatus(
+                    color: Colors.blue,
+                    flag: NESCpuStatusRegister.i,
+                    status: registers.status,
+                  ),
+                  _RegisterStatus(
+                    color: Colors.orange,
+                    flag: NESCpuStatusRegister.d,
+                    status: registers.status,
+                  ),
+                  _RegisterStatus(
+                    color: Colors.indigo,
+                    flag: NESCpuStatusRegister.b,
+                    status: registers.status,
+                  ),
+                  _RegisterStatus(
+                    color: Colors.teal,
+                    flag: NESCpuStatusRegister.r,
+                    status: registers.status,
+                  ),
+                  _RegisterStatus(
+                    color: Colors.brown,
+                    flag: NESCpuStatusRegister.v,
+                    status: registers.status,
+                  ),
+                  _RegisterStatus(
+                    color: Colors.yellow,
+                    flag: NESCpuStatusRegister.s,
+                    status: registers.status,
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final emulator = widget.emulator;
+    Widget result;
+    if (emulator == null) {
+      result = const Text('未就绪');
+    } else {
+      result = _buildStatus(emulator);
+    }
+    return Container(
+      alignment: Alignment.centerLeft,
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      height: kBottomNavigationBarHeight / 2,
+      decoration: BoxDecoration(
+        color: Theme.of(context).navigationBarTheme.backgroundColor,
+        border: Border(
+          top: BorderSide(color: Theme.of(context).dividerColor, width: 1),
+        ),
+      ),
+      child: result,
+    );
+  }
+}
+
+class _RegisterStatus extends StatelessWidget {
+  final Color color;
+  final NESCpuStatusRegister flag;
+  final int status;
+
+  const _RegisterStatus({
+    super.key,
+    required this.color,
+    required this.flag,
+    required this.status,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final enabled = ((status >> flag.index) & 0x1) == 1;
+    return Container(
+      width: kBottomNavigationBarHeight / 2,
+      height: kBottomNavigationBarHeight / 2,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: enabled ? color : Colors.transparent,
+        border: Border.all(color: Colors.grey, width: 1),
+      ),
+      child: Text(flag.name.toUpperCase()),
     );
   }
 }
@@ -61,10 +274,14 @@ class _EmulatorControllerBar extends StatefulWidget {
   /// 加载rom
   final VoidCallback loadNES;
 
+  /// 停止
+  final VoidCallback onStop;
+
   const _EmulatorControllerBar({
     super.key,
     required this.emulator,
     required this.loadNES,
+    required this.onStop,
   });
 
   @override
@@ -94,7 +311,7 @@ class _EmulatorControllerBarState extends State<_EmulatorControllerBar> {
 
   /// 停止游戏
   void _stop() {
-    widget.emulator.stop();
+    widget.onStop();
   }
 
   @override
@@ -109,6 +326,7 @@ class _EmulatorControllerBarState extends State<_EmulatorControllerBar> {
           );
         }
         return Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             switch (state) {
               NESEmulatorState.stopped ||

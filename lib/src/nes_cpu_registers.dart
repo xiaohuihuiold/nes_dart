@@ -1,9 +1,11 @@
+import 'package:flutter/foundation.dart';
+
 import 'logger.dart';
 import 'nes_cpu.dart';
 import 'nes_emulator.dart';
 
 /// 寄存器
-class NESCpuRegisters {
+class NESCpuRegisters extends ChangeNotifier {
   /// CPU
   final NESCpu cpu;
 
@@ -32,6 +34,7 @@ class NESCpuRegisters {
 
   set acc(int value) {
     _acc = value & 0xFF;
+    notifyListeners();
     if (emulator.logRegisters) {
       logger.v('REG: SET ACC=${_acc.toRadixString(16).toUpperCase()}');
     }
@@ -41,6 +44,7 @@ class NESCpuRegisters {
 
   set x(int value) {
     _x = value & 0xFF;
+    notifyListeners();
     if (emulator.logRegisters) {
       logger.v('REG: SET X=${_x.toRadixString(16).toUpperCase()}');
     }
@@ -50,6 +54,7 @@ class NESCpuRegisters {
 
   set y(int value) {
     _y = value & 0xFF;
+    notifyListeners();
     if (emulator.logRegisters) {
       logger.v('REG: SET Y=${_y.toRadixString(16).toUpperCase()}');
     }
@@ -63,6 +68,7 @@ class NESCpuRegisters {
 
   set pc(int value) {
     _pc = value & 0xFFFF;
+    notifyListeners();
     if (emulator.logRegisters) {
       logger.v('REG: SET PC=${_pc.toRadixString(16).toUpperCase()}');
     }
@@ -72,6 +78,7 @@ class NESCpuRegisters {
 
   set sp(int value) {
     _sp = value & 0xFF;
+    notifyListeners();
     if (emulator.logRegisters) {
       logger.v('REG: SET SP=${_sp.toRadixString(16).toUpperCase()}');
     }
@@ -86,11 +93,22 @@ class NESCpuRegisters {
 
   /// 设置状态寄存器flag
   void setStatus(NESCpuStatusRegister flag, int value) {
+    status &= ~flag.bit;
+    status |= (value & 0x01) << flag.index;
+    notifyListeners();
     if (emulator.logRegisters) {
       logger.v('REG: SET ${flag.name.toUpperCase()}=$value');
     }
-    status &= ~flag.bit;
-    status |= (value & 0x01) << flag.index;
+  }
+
+  /// 重置寄存器
+  void reset() {
+    status = 0;
+    acc = 0;
+    x = 0;
+    y = 0;
+    pc = 0;
+    sp = 0;
   }
 }
 
