@@ -38,6 +38,15 @@ class NESRomLoader {
     return loadFromMemory(await file.readAsBytes());
   }
 
+  /// 从asset创建
+  static Future<NESRom> loadFromAsset(
+    String key, {
+    AssetBundle? bundle,
+  }) async {
+    final byteData = await (bundle ?? rootBundle).load(key);
+    return loadFromMemory(byteData.buffer.asUint8List());
+  }
+
   /// 加载ROM
   NESRom load() {
     _builder.fileSize = _byteData.lengthInBytes;

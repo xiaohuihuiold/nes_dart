@@ -47,9 +47,9 @@ class NESEmulator {
   late final ppu = NESPpu(this);
 
   /// 模拟器状态
-  NESEmulatorState _state = NESEmulatorState.idle;
+  final _stateValue = ValueNotifier<NESEmulatorState>(NESEmulatorState.idle);
 
-  NESEmulatorState get state => _state;
+  ValueListenable<NESEmulatorState> get state => _stateValue;
 
   /// FPS
   int _fps = 0;
@@ -78,12 +78,12 @@ class NESEmulator {
 
   /// 运行模拟器
   void run() {
-    if (state != NESEmulatorState.idle) {
+    if (state.value != NESEmulatorState.idle) {
       logger.w('模拟器正在运行中');
       return;
     }
     reset();
-    _state = NESEmulatorState.running;
+    _stateValue.value = NESEmulatorState.running;
     logger.i('模拟器开始运行...');
     _startFpsTimer();
     _startCPULoop();
@@ -99,11 +99,11 @@ class NESEmulator {
 
   /// 恢复
   void resume() {
-    if (state != NESEmulatorState.paused) {
+    if (state.value != NESEmulatorState.paused) {
       logger.w('模拟器不在暂停中');
       return;
     }
-    _state = NESEmulatorState.running;
+    _stateValue.value = NESEmulatorState.running;
     logger.i('模拟器已恢复');
     _startFpsTimer();
     _startCPULoop();
@@ -111,18 +111,18 @@ class NESEmulator {
 
   /// 暂停
   void pause() {
-    if (state != NESEmulatorState.running) {
+    if (state.value != NESEmulatorState.running) {
       logger.w('模拟器不在运行中');
       return;
     }
-    _state = NESEmulatorState.paused;
+    _stateValue.value = NESEmulatorState.paused;
     _stopFpsTimer();
     logger.i('模拟器已暂停');
   }
 
   /// 停止
   void stop() {
-    _state = NESEmulatorState.stopped;
+    _stateValue.value = NESEmulatorState.stopped;
     _stopFpsTimer();
     logger.i('模拟器已停止');
   }
@@ -134,7 +134,7 @@ class NESEmulator {
       return;
     }
     _cpuRunning = true;
-    while (state == NESEmulatorState.running) {
+    while (state.value == NESEmulatorState.running) {
       final beginTime = Time.nowUs;
       int cycleCount = 0;
       while (cycleCount < NESCpu.clockSpeedNTSC / frameRate) {
@@ -172,7 +172,8 @@ class NESEmulator {
 
   /// 打印指令
   void printCodes() {
-    if (state != NESEmulatorState.running && state != NESEmulatorState.paused) {
+    if (state.value != NESEmulatorState.running &&
+        state.value != NESEmulatorState.paused) {
       logger.w('模拟器未加载程序');
       return;
     }
