@@ -61,7 +61,7 @@ class NESCpu {
     }
     final beginCycleCount = cycleCount;
     final beginPc = registers.pc;
-    final opCode = emulator.mapper.read(registers.pc);
+    final opCode = emulator.mapper.readU8(registers.pc);
     registers.pc++;
     final op = NESCpuCodes.getOP(opCode);
     if (op.op == NESOp.error) {

@@ -49,49 +49,41 @@ abstract class NESMapper {
     _memory.reset();
   }
 
-  /// 写入数据
-  void write(int address, int value) {
-    _memory.write(address, value);
+  int readU8(int address) {
+    return _memory.readU8(address);
   }
 
-  /// 读取数据
-  int read(int address) {
-    return _memory.read(address);
+  void writeU8(int address, int value) {
+    _memory.writeU8(address, value);
   }
 
-  /// 写入数据
-  void writeS(int address, int value) {
-    _memory.writeS(address, value);
+  int read8(int address) {
+    return _memory.read8(address);
   }
 
-  /// 读取数据
-  int readS(int address) {
-    return _memory.readS(address);
+  void write8(int address, int value) {
+    _memory.write8(address, value);
   }
 
-  /// 写入数据
-  void write16(int address, int value) {
-    _memory.write16(address, value);
+  int readU16(int address) {
+    return _memory.readU16(address);
   }
 
-  /// 读取数据
+  void writeU16(int address, int value) {
+    _memory.writeU16(address, value);
+  }
+
   int read16(int address) {
     return _memory.read16(address);
   }
 
-  /// 写入数据
-  void write16S(int address, int value) {
-    _memory.write16S(address, value);
-  }
-
-  /// 读取数据
-  int read16S(int address) {
-    return _memory.read16S(address);
+  void write16(int address, int value) {
+    _memory.write16(address, value);
   }
 
   /// 获取中断地址
   int readInterruptAddress(NESCpuInterrupt interrupt) {
-    return _memory.read16(interrupt.address);
+    return _memory.readU16(interrupt.address);
   }
 }
 
@@ -116,79 +108,79 @@ class NESMapper000 extends NESMapper {
   }
 
   @override
-  void write(int address, int value) {
+  void writeU8(int address, int value) {
     _printWrite(address, value);
     if (address <= NESMapper.maxRAMAddress) {
       // $2000以下的地址映射到$0000-$07FF
-      _memory.write(address & NESMapper.maskRAM, value);
+      _memory.writeU8(address & NESMapper.maskRAM, value);
     } else if (address <= NESMapper.maxRAMAddress) {
       // $2000-$3FFF 映射到PPU寄存器
       _regPPUWrite(address & NESMapper.ppuMask, value);
     } else {
-      super.write(address, value);
+      super.writeU8(address, value);
     }
   }
 
   @override
-  int read(int address) {
+  int readU8(int address) {
     _printRead(address);
     if (address <= NESMapper.maxRAMAddress) {
       // $2000以下的地址映射到$0000-$07FF
-      return _memory.read(address & NESMapper.maskRAM);
+      return _memory.readU8(address & NESMapper.maskRAM);
     } else if (address <= NESMapper.maxRAMAddress) {
       // $2000-$3FFF 映射到PPU寄存器
       return _regPPURead(address & NESMapper.ppuMask);
     } else {
-      return super.read(address);
+      return super.readU8(address);
     }
   }
 
   @override
-  void write16(int address, int value) {
+  void writeU16(int address, int value) {
     _printWrite(address, value);
     if (address <= NESMapper.maxRAMAddress) {
       // $2000以下的地址映射到$0000-$07FF
-      _memory.write16(address & NESMapper.maskRAM, value);
+      _memory.writeU16(address & NESMapper.maskRAM, value);
     } else if (address <= NESMapper.maxRAMAddress) {
       // $2000-$3FFF 映射到PPU寄存器
       _regPPUWrite16(address & NESMapper.ppuMask, value);
     } else {
-      super.write16(address, value);
+      super.writeU16(address, value);
     }
   }
 
   @override
-  int read16(int address) {
+  int readU16(int address) {
     _printRead(address);
     if (address <= NESMapper.maxRAMAddress) {
       // $2000以下的地址映射到$0000-$07FF
-      return _memory.read16(address & NESMapper.maskRAM);
+      return _memory.readU16(address & NESMapper.maskRAM);
     } else if (address <= NESMapper.maxRAMAddress) {
       // $2000-$3FFF 映射到PPU寄存器
       return _regPPURead16(address & NESMapper.ppuMask);
     } else {
-      return super.read16(address);
+      return super.readU16(address);
     }
   }
 
   /// PPU寄存器写入
   void _regPPUWrite(int address, int value) {
-    _memory.write(address, value);
+    _memory.writeU8(address, value);
   }
 
   /// PPU寄存器读取
   int _regPPURead(int address) {
-    return _memory.read(address);
+    return _memory.readU8(address);
   }
 
   /// PPU寄存器写入
   void _regPPUWrite16(int address, int value) {
-    _memory.write16(address, value);
+    _memory.writeU16(address, value);
   }
 
   /// PPU寄存器读取
   int _regPPURead16(int address) {
-    return _memory.read16(address);
+    return _memory.readU16(address);
   }
 
   void _loadPRGRom() {

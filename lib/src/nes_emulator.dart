@@ -180,7 +180,7 @@ class NESEmulator {
     const addressPRGRom = NESMapper000.addressPRGRom;
     for (int i = 0; i < prg.length;) {
       final address = addressPRGRom + i;
-      final byte = mapper.read(address);
+      final byte = mapper.readU8(address);
       final op = NESCpuCodes.getOP(byte);
 
       if (op.op == NESOp.error) {
@@ -196,13 +196,13 @@ class NESEmulator {
       stringBuffer.write(op.op.name);
       if (op.size > 1) {
         String value = mapper
-            .read(address + 1)
+            .readU8(address + 1)
             .toRadixString(16)
             .toUpperCase()
             .padLeft(2, '0');
         if (op.size == 3) {
           value = mapper
-              .read16(address + 1)
+              .readU16(address + 1)
               .toRadixString(16)
               .toUpperCase()
               .padLeft(2, '0');

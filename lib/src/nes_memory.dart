@@ -23,44 +23,44 @@ class NESMemory {
     logger.v('内存已重置');
   }
 
-  /// 获取uint16类型数据
-  int read16(int address) {
-    return _memory.getUint16(address, Endian.little);
-  }
-
-  /// 设置int16类型数据
-  void write16S(int address, int value) {
-    _memory.setInt16(address, value, Endian.little);
-  }
-
-  /// 获取int16类型数据
-  int read16S(int address) {
-    return _memory.getInt16(address, Endian.little);
-  }
-
-  /// 设置uint16类型数据
-  void write16(int address, int value) {
-    _memory.setUint16(address, value, Endian.little);
-  }
-
   /// 获取uint8类型数据
-  int read(int address) {
+  int readU8(int address) {
     return this[address];
   }
 
   /// 设置uint8类型数据
-  void write(int address, int value) {
+  void writeU8(int address, int value) {
     this[address] = value;
   }
 
   /// 获取int8类型数据
-  int readS(int address) {
+  int read8(int address) {
     return _memory.getInt8(address);
   }
 
   /// 设置int8类型数据
-  void writeS(int address, int value) {
+  void write8(int address, int value) {
     _memory.setInt8(address, value);
+  }
+
+  /// 获取uint16类型数据
+  int readU16(int address) {
+    return _memory.getUint16(address, Endian.little);
+  }
+
+  /// 设置uint16类型数据
+  void writeU16(int address, int value) {
+    _memory.setUint16(address, value, Endian.little);
+  }
+
+  /// 获取int16类型数据
+  int read16(int address) {
+    return _memory.getInt16(address, Endian.little);
+  }
+
+  /// 设置int16类型数据
+  void write16(int address, int value) {
+    _memory.setInt16(address, value, Endian.little);
   }
 
   /// 获取多段数据

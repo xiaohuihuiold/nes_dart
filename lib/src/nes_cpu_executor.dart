@@ -119,7 +119,7 @@ class NESCpuExecutor {
   /// TODO: 需要实现跨页周期+1
   /// 值存入寄存器X
   void _executeLDX(NESOpCode op, int address) {
-    final value = mapper.readS(address);
+    final value = mapper.read8(address);
     registers.x = value;
     registers.setStatus(NESCpuStatusRegister.s, value < 1 ? 1 : 0);
     registers.setStatus(NESCpuStatusRegister.z, value == 0 ? 1 : 0);
@@ -128,7 +128,7 @@ class NESCpuExecutor {
   /// TODO: 需要实现跨页周期+1
   /// 值存入A累加器
   void _executeLDA(NESOpCode op, int address) {
-    final value = mapper.readS(address);
+    final value = mapper.read8(address);
     registers.acc = value;
     registers.setStatus(NESCpuStatusRegister.s, value < 1 ? 1 : 0);
     registers.setStatus(NESCpuStatusRegister.z, value == 0 ? 1 : 0);
