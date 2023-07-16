@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 
 import 'bytes_ext.dart';
 import 'nes_memory.dart';
+import 'nes_palettes.dart';
 import 'nes_emulator.dart';
 import 'logger.dart';
 
@@ -39,16 +40,32 @@ class NESPpu {
 
   ValueListenable<ui.Image?> get screen => _screen;
 
+  /// 调色板
+  final _palette = ValueNotifier<List<int>>(NESPalettes.ntsc);
+
+  ValueListenable<List<int>> get palette => _palette;
+
   NESPpu(this.emulator);
 
   /// 重置
   void reset() {
     _memory.reset();
+    loadPalette(NESPalettes.ntsc);
     resetScreen();
     submitScreen();
     logger.v('PPU已重置');
   }
 
+  /// 加载调色盘
+  void loadPalette(List<int> palette) {
+    if (palette.length != 64) {
+      throw Exception('调色盘数量不正确,需要长度为64');
+    }
+    _palette.value = palette.toList();
+    logger.v('调色盘已加载');
+  }
+
+  /// 重置屏幕画面
   void resetScreen([int fillColor = 0x000000FF]) {
     _screenBuffer = ByteData(screenBufferSize);
     for (int i = 0; i < screenBufferSize; i += 4) {

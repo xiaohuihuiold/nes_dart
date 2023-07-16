@@ -11,5 +11,6 @@ export 'src/nes_cpu_registers.dart';
 export 'src/nes_cpu_executor.dart';
 export 'src/nes_ppu.dart';
 export 'src/nes_view.dart';
+export 'src/nes_palettes.dart';
 export 'src/constants.dart';
 export 'src/utils.dart';
