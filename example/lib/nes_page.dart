@@ -2,6 +2,8 @@ import 'package:example/memory_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:nes_dart/nes_dart.dart';
 
+import 'ppu_viewer.dart';
+
 /// 游戏页
 class NESPage extends StatefulWidget {
   const NESPage({Key? key}) : super(key: key);
@@ -66,6 +68,7 @@ class _NESPageState extends State<NESPage> {
         children: [
           MemoryViewer(emulator: emulator),
           Expanded(child: body),
+          PPUViewer(emulator: emulator),
         ],
       ),
       bottomNavigationBar: _EmulatorStatusBar(emulator: emulator),

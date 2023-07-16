@@ -51,6 +51,7 @@ class _MemoryViewerState extends State<MemoryViewer> {
     }
     return Container(
       width: 300,
+      height: double.infinity,
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.white10,
