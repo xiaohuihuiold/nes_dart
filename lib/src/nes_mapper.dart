@@ -99,12 +99,16 @@ class NESMapper000 extends NESMapper {
   /// PRG-ROM起始地址
   static const addressPRGRom = 0x8000;
 
+  /// CHR-ROM起始地址,在PPU
+  static const addressCHRRom = 0x0000;
+
   NESMapper000(super.emulator);
 
   @override
   void reset() {
     super.reset();
     _loadPRGRom();
+    _loadCHRRom();
   }
 
   @override
@@ -207,6 +211,27 @@ class NESMapper000 extends NESMapper {
       emulator.rom.prgRom,
       start: start,
       end: start + Constants.byte16KiB,
+    );
+  }
+
+  void _loadCHRRom() {
+    logger.v('加载CHR-ROM');
+    final bankCount = emulator.rom.chrCount;
+    if (bankCount == 1) {
+      _load8KiBVRomBank(0, addressCHRRom);
+    }
+    logger.v('CHR-ROM已加载');
+  }
+
+  /// 加载CHR-ROM
+  /// PPU前8KiB是CHR-ROM区域
+  void _load8KiBVRomBank(int bank, int address) {
+    final start = bank * Constants.byte8KiB;
+    emulator.ppu.writeAll(
+      address,
+      emulator.rom.chrRom,
+      start: start,
+      end: start + Constants.byte8KiB,
     );
   }
 

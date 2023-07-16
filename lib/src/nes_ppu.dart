@@ -66,7 +66,6 @@ class NESPpu {
     }
   }
 
-  /// TODO: 释放图像
   /// 刷新屏幕
   Future<void> submitScreen() async {
     try {
@@ -99,5 +98,45 @@ class NESPpu {
       return;
     }
     _screenBuffer.setUint32(((y - 1) * 256 + (x - 1)) * 4, rbga);
+  }
+
+  int readU8(int address) {
+    return _memory.readU8(address);
+  }
+
+  void writeU8(int address, int value) {
+    _memory.writeU8(address, value);
+  }
+
+  int read8(int address) {
+    return _memory.read8(address);
+  }
+
+  void write8(int address, int value) {
+    _memory.write8(address, value);
+  }
+
+  int readU16(int address) {
+    return _memory.readU16(address);
+  }
+
+  void writeU16(int address, int value) {
+    _memory.writeU16(address, value);
+  }
+
+  int read16(int address) {
+    return _memory.read16(address);
+  }
+
+  void write16(int address, int value) {
+    _memory.write16(address, value);
+  }
+
+  Uint8List readAll(int address, int length) {
+    return _memory.readAll(address, address + length);
+  }
+
+  void writeAll(int address, List<int> bytes, {int start = 0, int? end}) {
+    _memory.writeAll(address, bytes, start: start, end: end);
   }
 }
