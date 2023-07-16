@@ -109,6 +109,20 @@ class NESMapper000 extends NESMapper {
   }
 
   @override
+  int readU8(int address) {
+    _printRead(address);
+    if (address <= NESMapper.maxRAMAddress) {
+      // $2000以下的地址映射到$0000-$07FF
+      return _memory.readU8(address & NESMapper.maskRAM);
+    } else if (address <= NESMapper.maxPPUAddress) {
+      // $2000-$3FFF 映射到PPU寄存器
+      return _regPPUReadU8(address & NESMapper.maskPPU);
+    } else {
+      return super.readU8(address);
+    }
+  }
+
+  @override
   void writeU8(int address, int value) {
     _printWrite(address, value);
     if (address <= NESMapper.maxRAMAddress) {
@@ -123,16 +137,44 @@ class NESMapper000 extends NESMapper {
   }
 
   @override
-  int readU8(int address) {
+  int read8(int address) {
     _printRead(address);
     if (address <= NESMapper.maxRAMAddress) {
       // $2000以下的地址映射到$0000-$07FF
-      return _memory.readU8(address & NESMapper.maskRAM);
+      return _memory.read8(address & NESMapper.maskRAM);
     } else if (address <= NESMapper.maxPPUAddress) {
       // $2000-$3FFF 映射到PPU寄存器
-      return _regPPUReadU8(address & NESMapper.maskPPU);
+      return _regPPURead8(address & NESMapper.maskPPU);
     } else {
-      return super.readU8(address);
+      return super.read8(address);
+    }
+  }
+
+  @override
+  void write8(int address, int value) {
+    _printWrite(address, value);
+    if (address <= NESMapper.maxRAMAddress) {
+      // $2000以下的地址映射到$0000-$07FF
+      _memory.write8(address & NESMapper.maskRAM, value);
+    } else if (address <= NESMapper.maxPPUAddress) {
+      // $2000-$3FFF 映射到PPU寄存器
+      _regPPUWrite8(address & NESMapper.maskPPU, value);
+    } else {
+      super.write8(address, value);
+    }
+  }
+
+  @override
+  int readU16(int address) {
+    _printRead(address);
+    if (address <= NESMapper.maxRAMAddress) {
+      // $2000以下的地址映射到$0000-$07FF
+      return _memory.readU16(address & NESMapper.maskRAM);
+    } else if (address <= NESMapper.maxPPUAddress) {
+      // $2000-$3FFF 映射到PPU寄存器
+      return _regPPUReadU16(address & NESMapper.maskPPU);
+    } else {
+      return super.readU16(address);
     }
   }
 
@@ -151,37 +193,99 @@ class NESMapper000 extends NESMapper {
   }
 
   @override
-  int readU16(int address) {
+  int read16(int address) {
     _printRead(address);
     if (address <= NESMapper.maxRAMAddress) {
       // $2000以下的地址映射到$0000-$07FF
-      return _memory.readU16(address & NESMapper.maskRAM);
+      return _memory.read16(address & NESMapper.maskRAM);
     } else if (address <= NESMapper.maxPPUAddress) {
       // $2000-$3FFF 映射到PPU寄存器
-      return _regPPUReadU16(address & NESMapper.maskPPU);
+      return _regPPURead16(address & NESMapper.maskPPU);
     } else {
-      return super.readU16(address);
+      return super.read16(address);
+    }
+  }
+
+  @override
+  void write16(int address, int value) {
+    _printWrite(address, value);
+    if (address <= NESMapper.maxRAMAddress) {
+      // $2000以下的地址映射到$0000-$07FF
+      _memory.write16(address & NESMapper.maskRAM, value);
+    } else if (address <= NESMapper.maxPPUAddress) {
+      // $2000-$3FFF 映射到PPU寄存器
+      _regPPUWrite16(address & NESMapper.maskPPU, value);
+    } else {
+      super.write16(address, value);
     }
   }
 
   /// PPU寄存器写入
   void _regPPUWriteU8(int address, int value) {
+    if (address == 0x2002) {
+      emulator.ppu.registers.status = value;
+    }
     _memory.writeU8(address, value);
   }
 
   /// PPU寄存器读取
   int _regPPUReadU8(int address) {
-    return _memory.readU8(address);
+    final value = _memory.readU8(address);
+    if (address == 0x2002) {
+      emulator.ppu.endVBlank();
+    }
+    return value;
+  }
+
+  /// PPU寄存器写入
+  void _regPPUWrite8(int address, int value) {
+    if (address == 0x2002) {
+      emulator.ppu.registers.status = value;
+    }
+    _memory.write8(address, value);
+  }
+
+  /// PPU寄存器读取
+  int _regPPURead8(int address) {
+    final value = _memory.read8(address);
+    if (address == 0x2002) {
+      emulator.ppu.endVBlank();
+    }
+    return value;
   }
 
   /// PPU寄存器写入
   void _regPPUWriteU16(int address, int value) {
+    if (address == 0x2002) {
+      emulator.ppu.registers.status = value;
+    }
     _memory.writeU16(address, value);
   }
 
   /// PPU寄存器读取
   int _regPPUReadU16(int address) {
-    return _memory.readU16(address);
+    final value = _memory.readU16(address);
+    if (address == 0x2002) {
+      emulator.ppu.endVBlank();
+    }
+    return value;
+  }
+
+  /// PPU寄存器写入
+  void _regPPUWrite16(int address, int value) {
+    if (address == 0x2002) {
+      emulator.ppu.registers.status = value;
+    }
+    _memory.write16(address, value);
+  }
+
+  /// PPU寄存器读取
+  int _regPPURead16(int address) {
+    final value = _memory.read16(address);
+    if (address == 0x2002) {
+      emulator.ppu.endVBlank();
+    }
+    return value;
   }
 
   void _loadPRGRom() {

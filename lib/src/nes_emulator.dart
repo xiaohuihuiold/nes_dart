@@ -141,6 +141,7 @@ class NESEmulator {
       while (cycleCount < cpu.clockSpeed.speed / frameRate) {
         cycleCount += cpu.execute();
       }
+      ppu.beginVBlank();
       final spendTime = Time.nowUs - beginTime + _overTime;
       final lastTime = Time.nowUs;
       final delay =

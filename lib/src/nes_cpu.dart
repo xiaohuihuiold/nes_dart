@@ -38,7 +38,7 @@ class CpuClockSpeed {
 /// CPU
 class NESCpu {
   /// 调试用速度
-  static const clockSpeedDebug = CpuClockSpeed(speed: 1, timeUs: 1000000 / 1);
+  static const clockSpeedDebug = CpuClockSpeed(speed: 1000, timeUs: 1000000 / 1000);
 
   /// PAL
   static const clockSpeedPAL =

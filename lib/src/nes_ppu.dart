@@ -1,10 +1,10 @@
 import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 
-import 'bytes_ext.dart';
 import 'nes_memory.dart';
 import 'nes_palettes.dart';
 import 'nes_emulator.dart';
+import 'nes_ppu_registers.dart';
 import 'logger.dart';
 
 /// PPU
@@ -35,6 +35,9 @@ class NESPpu {
   /// 模拟器
   final NESEmulator emulator;
 
+  /// 寄存器
+  late final registers = NESPpuRegisters(this);
+
   /// 屏幕缓冲区
   ByteData _screenBuffer = ByteData(screenBufferSize);
 
@@ -53,6 +56,7 @@ class NESPpu {
   /// 重置
   void reset() {
     _memory.reset();
+    registers.reset();
     loadPalette(NESPalettes.ntsc);
     resetScreen();
     submitScreen();
@@ -110,6 +114,16 @@ class NESPpu {
     } catch (e) {
       logger.e('屏幕刷新错误', error: e);
     }
+  }
+
+  /// 开始VBlank
+  void beginVBlank() {
+    emulator.mapper.writeU8(0x2002, registers.status | 0x80);
+  }
+
+  /// 结束VBlank
+  void endVBlank() {
+    emulator.mapper.writeU8(0x2002, registers.status & (~0x80));
   }
 
   /// 绘制像素点
