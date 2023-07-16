@@ -27,13 +27,10 @@ abstract class NESMapper {
   static const maxRAMAddress = 0x1FFF;
 
   /// PPU地址mask
-  static const ppuMask = 0x2007;
-
-  /// PPU起始地址
-  static const ppuStartAddress = 0x2000;
+  static const maskPPU = 0x2007;
 
   /// PPU结束地址
-  static const ppuEndAddress = 0x3FFFF;
+  static const maxPPUAddress = 0x3FFF;
 
   /// 模拟器
   final NESEmulator emulator;
@@ -117,9 +114,9 @@ class NESMapper000 extends NESMapper {
     if (address <= NESMapper.maxRAMAddress) {
       // $2000以下的地址映射到$0000-$07FF
       _memory.writeU8(address & NESMapper.maskRAM, value);
-    } else if (address <= NESMapper.maxRAMAddress) {
+    } else if (address <= NESMapper.maxPPUAddress) {
       // $2000-$3FFF 映射到PPU寄存器
-      _regPPUWrite(address & NESMapper.ppuMask, value);
+      _regPPUWriteU8(address & NESMapper.maskPPU, value);
     } else {
       super.writeU8(address, value);
     }
@@ -131,9 +128,9 @@ class NESMapper000 extends NESMapper {
     if (address <= NESMapper.maxRAMAddress) {
       // $2000以下的地址映射到$0000-$07FF
       return _memory.readU8(address & NESMapper.maskRAM);
-    } else if (address <= NESMapper.maxRAMAddress) {
+    } else if (address <= NESMapper.maxPPUAddress) {
       // $2000-$3FFF 映射到PPU寄存器
-      return _regPPURead(address & NESMapper.ppuMask);
+      return _regPPUReadU8(address & NESMapper.maskPPU);
     } else {
       return super.readU8(address);
     }
@@ -145,9 +142,9 @@ class NESMapper000 extends NESMapper {
     if (address <= NESMapper.maxRAMAddress) {
       // $2000以下的地址映射到$0000-$07FF
       _memory.writeU16(address & NESMapper.maskRAM, value);
-    } else if (address <= NESMapper.maxRAMAddress) {
+    } else if (address <= NESMapper.maxPPUAddress) {
       // $2000-$3FFF 映射到PPU寄存器
-      _regPPUWrite16(address & NESMapper.ppuMask, value);
+      _regPPUWriteU16(address & NESMapper.maskPPU, value);
     } else {
       super.writeU16(address, value);
     }
@@ -159,31 +156,31 @@ class NESMapper000 extends NESMapper {
     if (address <= NESMapper.maxRAMAddress) {
       // $2000以下的地址映射到$0000-$07FF
       return _memory.readU16(address & NESMapper.maskRAM);
-    } else if (address <= NESMapper.maxRAMAddress) {
+    } else if (address <= NESMapper.maxPPUAddress) {
       // $2000-$3FFF 映射到PPU寄存器
-      return _regPPURead16(address & NESMapper.ppuMask);
+      return _regPPUReadU16(address & NESMapper.maskPPU);
     } else {
       return super.readU16(address);
     }
   }
 
   /// PPU寄存器写入
-  void _regPPUWrite(int address, int value) {
+  void _regPPUWriteU8(int address, int value) {
     _memory.writeU8(address, value);
   }
 
   /// PPU寄存器读取
-  int _regPPURead(int address) {
+  int _regPPUReadU8(int address) {
     return _memory.readU8(address);
   }
 
   /// PPU寄存器写入
-  void _regPPUWrite16(int address, int value) {
+  void _regPPUWriteU16(int address, int value) {
     _memory.writeU16(address, value);
   }
 
   /// PPU寄存器读取
-  int _regPPURead16(int address) {
+  int _regPPUReadU16(int address) {
     return _memory.readU16(address);
   }
 

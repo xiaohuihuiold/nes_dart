@@ -138,7 +138,7 @@ class NESEmulator {
     while (state.value == NESEmulatorState.running) {
       final beginTime = Time.nowUs;
       int cycleCount = 0;
-      while (cycleCount < NESCpu.clockSpeedNTSC / frameRate) {
+      while (cycleCount < cpu.clockSpeed.speed / frameRate) {
         cycleCount += cpu.execute();
       }
       final spendTime = Time.nowUs - beginTime + _overTime;

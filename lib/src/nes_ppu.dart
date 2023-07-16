@@ -26,6 +26,9 @@ class NESPpu {
   /// 屏幕缓冲区大小
   static const screenBufferSize = (256 * 256 + 256) * 4;
 
+  /// 图样表最大地址
+  static const maxPatternAddress = 0x1FFF;
+
   /// VRAM
   final _memory = NESMemory();
 
@@ -117,36 +120,34 @@ class NESPpu {
     _screenBuffer.setUint32(((y - 1) * 256 + (x - 1)) * 4, rbga);
   }
 
+  /// TODO: PPU其它表
   int readU8(int address) {
-    return _memory.readU8(address);
+    if (address <= maxPatternAddress) {
+      return _memory.readU8(address);
+    }
+    return 0;
   }
 
+  /// TODO: PPU其它表
   void writeU8(int address, int value) {
-    _memory.writeU8(address, value);
+    if (address <= maxPatternAddress) {
+      _memory.writeU8(address, value);
+    }
   }
 
-  int read8(int address) {
-    return _memory.read8(address);
-  }
-
-  void write8(int address, int value) {
-    _memory.write8(address, value);
-  }
-
+  /// TODO: PPU其它表
   int readU16(int address) {
-    return _memory.readU16(address);
+    if (address <= maxPatternAddress) {
+      return _memory.readU16(address);
+    }
+    return 0;
   }
 
+  /// TODO: PPU其它表
   void writeU16(int address, int value) {
-    _memory.writeU16(address, value);
-  }
-
-  int read16(int address) {
-    return _memory.read16(address);
-  }
-
-  void write16(int address, int value) {
-    _memory.write16(address, value);
+    if (address <= maxPatternAddress) {
+      _memory.writeU16(address, value);
+    }
   }
 
   Uint8List readAll(int address, int length) {

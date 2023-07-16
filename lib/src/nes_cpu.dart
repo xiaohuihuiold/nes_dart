@@ -27,15 +27,26 @@ enum NESCpuInterrupt {
   const NESCpuInterrupt(this.address, this.priority);
 }
 
+/// CPU主频
+class CpuClockSpeed {
+  final int speed;
+  final double timeUs;
+
+  const CpuClockSpeed({required this.speed, required this.timeUs});
+}
+
 /// CPU
 class NESCpu {
-  /// PAL主频 Hz
-  static const clockSpeedPAL = 1773447;
-  static const clockSpeedPALus = 1000000 / clockSpeedPAL;
+  /// 调试用速度
+  static const clockSpeedDebug = CpuClockSpeed(speed: 1, timeUs: 1000000 / 1);
 
-  /// NTSC主频 Hz
-  static const clockSpeedNTSC = 1789772;
-  static const clockSpeedNTSCus = 1000000 / clockSpeedNTSC;
+  /// PAL
+  static const clockSpeedPAL =
+      CpuClockSpeed(speed: 1773447, timeUs: 1000000 / 1773447);
+
+  /// NTSC
+  static const clockSpeedNTSC =
+      CpuClockSpeed(speed: 1789772, timeUs: 1000000 / 1789772);
 
   /// 模拟器
   final NESEmulator emulator;
@@ -51,6 +62,9 @@ class NESCpu {
 
   /// 周期计数
   int cycleCount = 0;
+
+  /// 当前主频
+  CpuClockSpeed clockSpeed = clockSpeedNTSC;
 
   NESCpu(this.emulator);
 

@@ -21,7 +21,9 @@ class _NESPageState extends State<NESPage> {
     _emulator?.stop();
     _emulator = null;
     final rom = await NESRomLoader.loadFromAsset('assets/roms/nestest.nes');
-    _emulator = NESEmulator(rom: rom);
+    _emulator = NESEmulator(rom: rom, logCpu: true);
+    // TODO: 限制CPU速度
+    _emulator?.cpu.clockSpeed = NESCpu.clockSpeedDebug;
     if (mounted) setState(() {});
   }
 
