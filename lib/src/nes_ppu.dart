@@ -78,9 +78,16 @@ class NESPpu {
         height: 240,
         pixelFormat: ui.PixelFormat.rgba8888,
       );
+      buffer.dispose();
       final codec = await imageDescriptor.instantiateCodec();
       final frameInfo = await codec.getNextFrame();
+      codec.dispose();
+      imageDescriptor.dispose();
+      final oldScreen = _screen.value;
       _screen.value = frameInfo.image;
+      if (oldScreen != null) {
+        oldScreen.dispose();
+      }
     } catch (e) {
       logger.e('屏幕刷新错误', error: e);
     }
