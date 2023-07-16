@@ -33,7 +33,24 @@ class _PPUViewerState extends State<PPUViewer> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('调色板'),
+            PopupMenuButton<List<int>>(
+              child: const Text('调色板'),
+              onSelected: (palette) {
+                emulator.ppu.loadPalette(palette);
+              },
+              itemBuilder: (BuildContext context) {
+                return const [
+                  PopupMenuItem(
+                    value: NESPalettes.ntsc,
+                    child: Text('NTSC'),
+                  ),
+                  PopupMenuItem(
+                    value: NESPalettes.pal,
+                    child: Text('PAL'),
+                  ),
+                ];
+              },
+            ),
             const SizedBox(height: 8),
             _PaletteViewer(emulator: emulator),
           ],

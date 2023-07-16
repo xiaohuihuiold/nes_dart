@@ -56,13 +56,13 @@ class NESPpu {
     logger.v('PPU已重置');
   }
 
-  /// 加载调色盘
+  /// 加载调色板
   void loadPalette(List<int> palette) {
     if (palette.length != 64) {
-      throw Exception('调色盘数量不正确,需要长度为64');
+      throw Exception('调色板数量不正确,需要长度为64');
     }
     _palette.value = palette.toList();
-    logger.v('调色盘已加载');
+    logger.v('调色板已加载');
   }
 
   /// 重置屏幕画面
