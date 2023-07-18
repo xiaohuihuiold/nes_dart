@@ -22,6 +22,11 @@ class _NESPageState extends State<NESPage> {
     _emulator = null;
     final rom = await NESRomLoader.loadFromAsset('assets/roms/nestest.nes');
     _emulator = NESEmulator(rom: rom, logCpu: true);
+    _emulator?.state.addListener(() {
+      if (_emulator?.state.value == NESEmulatorState.stopped) {
+        _onStop();
+      }
+    });
     // TODO: 限制CPU速度
     _emulator?.cpu.clockSpeed = NESCpu.clockSpeedDebug;
     if (mounted) setState(() {});
@@ -29,7 +34,6 @@ class _NESPageState extends State<NESPage> {
 
   /// 停止
   void _onStop() {
-    _emulator?.stop();
     _emulator = null;
     setState(() {});
   }
@@ -60,7 +64,6 @@ class _NESPageState extends State<NESPage> {
       controllerBar = _EmulatorControllerBar(
         emulator: emulator,
         loadNES: _loadNES,
-        onStop: _onStop,
       );
     }
 
@@ -285,14 +288,10 @@ class _EmulatorControllerBar extends StatefulWidget {
   /// 加载rom
   final VoidCallback loadNES;
 
-  /// 停止
-  final VoidCallback onStop;
-
   const _EmulatorControllerBar({
     super.key,
     required this.emulator,
     required this.loadNES,
-    required this.onStop,
   });
 
   @override
@@ -322,7 +321,7 @@ class _EmulatorControllerBarState extends State<_EmulatorControllerBar> {
 
   /// 停止游戏
   void _stop() {
-    widget.onStop();
+    widget.emulator.stop();
   }
 
   @override

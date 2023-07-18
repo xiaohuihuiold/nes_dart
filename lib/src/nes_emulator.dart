@@ -135,21 +135,27 @@ class NESEmulator {
       return;
     }
     _cpuRunning = true;
-    while (state.value == NESEmulatorState.running) {
-      final beginTime = Time.nowUs;
-      int cycleCount = 0;
-      while (cycleCount < cpu.clockSpeed.speed / frameRate) {
-        cycleCount += cpu.execute();
+    try {
+      while (state.value == NESEmulatorState.running) {
+        final beginTime = Time.nowUs;
+        int cycleCount = 0;
+        while (cycleCount < cpu.clockSpeed.speed / frameRate) {
+          cycleCount += cpu.execute();
+        }
+        ppu.beginVBlank();
+        final spendTime = Time.nowUs - beginTime + _overTime;
+        final lastTime = Time.nowUs;
+        final delay = ((1000 * 1000 / frameRate) - spendTime)
+            .toInt()
+            .clamp(0, 1000 * 1000);
+        logger.v('帧: $cycleCount(cycles)\t $spendTime(us)\t delay: $delay(us)');
+        await Future.delayed(Duration(microseconds: delay));
+        _overTime = Time.nowUs - lastTime - delay;
+        _fps++;
       }
-      ppu.beginVBlank();
-      final spendTime = Time.nowUs - beginTime + _overTime;
-      final lastTime = Time.nowUs;
-      final delay =
-          ((1000 * 1000 / frameRate) - spendTime).toInt().clamp(0, 1000 * 1000);
-      logger.v('帧: $cycleCount(cycles)\t $spendTime(us)\t delay: $delay(us)');
-      await Future.delayed(Duration(microseconds: delay));
-      _overTime = Time.nowUs - lastTime - delay;
-      _fps++;
+    } catch (e) {
+      logger.e('指令执行出错', error: e);
+      stop();
     }
     _cpuRunning = false;
   }
