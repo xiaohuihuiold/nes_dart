@@ -101,6 +101,20 @@ class NESCpuRegisters extends ChangeNotifier {
     }
   }
 
+  /// 检查更新状态寄存器
+  void checkAndUpdateStatus(NESCpuStatusRegister flag, int value) {
+    switch (flag) {
+      case NESCpuStatusRegister.s:
+        setStatus(NESCpuStatusRegister.s, value < 0 ? 1 : 0);
+        break;
+      case NESCpuStatusRegister.z:
+        setStatus(NESCpuStatusRegister.z, value == 0 ? 1 : 0);
+        break;
+      default:
+        throw Exception('未实现的状态寄存器标志位');
+    }
+  }
+
   /// 重置寄存器
   void reset() {
     status = 0;

@@ -121,8 +121,8 @@ class NESCpuExecutor {
   void _executeLDX(NESOpCode op, int address) {
     final value = mapper.read8(address);
     registers.x = value;
-    registers.setStatus(NESCpuStatusRegister.s, value < 0 ? 1 : 0);
-    registers.setStatus(NESCpuStatusRegister.z, value == 0 ? 1 : 0);
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.s, value );
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.z, value );
   }
 
   /// TODO: 需要实现跨页周期+1
@@ -130,8 +130,8 @@ class NESCpuExecutor {
   void _executeLDA(NESOpCode op, int address) {
     final value = mapper.read8(address);
     registers.acc = value;
-    registers.setStatus(NESCpuStatusRegister.s, value < 0 ? 1 : 0);
-    registers.setStatus(NESCpuStatusRegister.z, value == 0 ? 1 : 0);
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.s, value);
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.z, value);
   }
 
   /// 寄存器X值存入SP
