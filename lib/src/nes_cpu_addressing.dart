@@ -86,8 +86,14 @@ class NESCpuAddressing {
   }
 
   /// 寻址
+  /// 第17位表示是否跨页
   int getAddress(NESAddressing mode) {
-    return (_addressingMapping[mode.index]?.call() ?? 0) & 0xFFFF;
+    return (_addressingMapping[mode.index]?.call() ?? 0) & 0x1FFFF;
+  }
+
+  /// 地址是否跨页
+  bool isDifferentPage(int a, int b) {
+    return (a & 0xff00) != (b & 0xff00);
   }
 
   /// 无需处理
@@ -123,16 +129,26 @@ class NESCpuAddressing {
 
   /// PC位置的值加上X变址寄存器的值
   int _addressingAbsoluteX() {
-    final address = registers.x + emulator.mapper.read16(registers.pc);
+    int cycles = 0;
+    int address = emulator.mapper.read16(registers.pc);
+    if (isDifferentPage(address, address + registers.x)) {
+      cycles = 1;
+    }
+    address += registers.x;
     registers.pc += 2;
-    return address;
+    return address | (cycles << 16);
   }
 
   /// PC位置的值加上Y变址寄存器的值
   int _addressingAbsoluteY() {
-    final address = registers.y + emulator.mapper.read16(registers.pc);
+    int cycles = 0;
+    int address = emulator.mapper.read16(registers.pc);
+    if (isDifferentPage(address, address + registers.y)) {
+      cycles = 1;
+    }
+    address += registers.y;
     registers.pc += 2;
-    return address;
+    return address | (cycles << 16);
   }
 
   /// PC的8位值加上X变址寄存器的值,并取前8位
@@ -166,16 +182,29 @@ class NESCpuAddressing {
   /// PC的值与X变址寄存器相加得到新的地址
   /// 新的地址读取两个字节作为新的地址
   int _addressingIndirectX() {
-    final temp = emulator.mapper.read8(registers.pc) + registers.x;
+    int cycles = 0;
+    int address = emulator.mapper.read8(registers.pc);
+    if (isDifferentPage(address, address + registers.x)) {
+      cycles = 1;
+    }
+    address += registers.x;
+    address &= 0xff;
+    address = emulator.mapper.readU16(address);
     registers.pc++;
-    return emulator.mapper.readU16(temp);
+    return address | (cycles << 16);
   }
 
   /// PC的值作为地址,并读取地址的值与Y变址寄存器相加
   int _addressingIndirectY() {
-    final temp = emulator.mapper.read8(registers.pc);
+    int cycles = 0;
+    int address = emulator.mapper.read8(registers.pc);
+    address = emulator.mapper.readU16(address);
+    if (isDifferentPage(address, address + registers.y)) {
+      cycles = 1;
+    }
+    address += registers.y;
     registers.pc++;
-    return emulator.mapper.readU16(temp) + registers.y;
+    return address | (cycles << 16);
   }
 
   /// PC加上当前地址值偏移

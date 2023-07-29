@@ -38,7 +38,8 @@ class CpuClockSpeed {
 /// CPU
 class NESCpu {
   /// 调试用速度
-  static const clockSpeedDebug = CpuClockSpeed(speed: 1000, timeUs: 1000000 / 1000);
+  static const clockSpeedDebug =
+      CpuClockSpeed(speed: 1000, timeUs: 1000000 / 1000);
 
   /// PAL
   static const clockSpeedPAL =
@@ -81,7 +82,9 @@ class NESCpu {
     if (op.op == NESOp.error) {
       logger.e('执行错误');
     }
-    final address = addressing.getAddress(op.addressing);
+    int address = addressing.getAddress(op.addressing);
+    final differentPage = (address >> 16) & 0x01 == 1;
+    address &= 0xffff;
     if (emulator.logCpu) {
       logger.d('执行: '
           '\$${beginPc.toRadixString(16).toUpperCase().padLeft(4, '0')}: '
@@ -89,6 +92,9 @@ class NESCpu {
     }
     executor.execute(op, address);
     cycleCount += op.cycles;
+    if (differentPage && op.otherCycles != 0) {
+      cycleCount += op.otherCycles;
+    }
     return cycleCount - beginCycleCount;
   }
 
