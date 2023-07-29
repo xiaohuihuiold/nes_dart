@@ -42,7 +42,7 @@ class NESCpuExecutor {
     list[NESOp.lda.index] = _executeLDA;
     list[NESOp.ldx.index] = _executeLDX;
     list[NESOp.ldy.index] = defaultExecutor;
-    list[NESOp.sta.index] = defaultExecutor;
+    list[NESOp.sta.index] = _executeSTA;
     list[NESOp.stx.index] = defaultExecutor;
     list[NESOp.sty.index] = defaultExecutor;
     list[NESOp.adc.index] = defaultExecutor;
@@ -116,16 +116,19 @@ class NESCpuExecutor {
     executor(op, address);
   }
 
-  /// TODO: 需要实现跨页周期+1
   /// 值存入寄存器X
   void _executeLDX(NESOpCode op, int address) {
     final value = mapper.read8(address);
     registers.x = value;
-    registers.checkAndUpdateStatus(NESCpuStatusRegister.s, value );
-    registers.checkAndUpdateStatus(NESCpuStatusRegister.z, value );
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.s, value);
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.z, value);
   }
 
-  /// TODO: 需要实现跨页周期+1
+  /// 将累加器A的值写入地址
+  void _executeSTA(NESOpCode op, int address) {
+    mapper.writeU8(address, registers.acc);
+  }
+
   /// 值存入A累加器
   void _executeLDA(NESOpCode op, int address) {
     final value = mapper.read8(address);
@@ -149,7 +152,6 @@ class NESCpuExecutor {
     registers.setStatus(NESCpuStatusRegister.i, 1);
   }
 
-  /// TODO: 需要实现跨页周期同一页+1,不同页+2
   /// 标志S=1跳转
   void _executeBPL(NESOpCode op, int address) {
     if (registers.getStatus(NESCpuStatusRegister.s) == 1) {

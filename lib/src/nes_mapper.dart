@@ -222,68 +222,65 @@ class NESMapper000 extends NESMapper {
 
   /// PPU寄存器写入
   void _regPPUWriteU8(int address, int value) {
-    if (address == 0x2002) {
-      emulator.ppu.registers.status = value;
-    }
+    _regPPUWrite(address, value);
     _memory.writeU8(address, value);
   }
 
   /// PPU寄存器读取
   int _regPPUReadU8(int address) {
-    final value = _memory.readU8(address);
-    if (address == 0x2002) {
-      emulator.ppu.endVBlank();
-    }
-    return value;
+    return _regPPURead(address);
   }
 
   /// PPU寄存器写入
   void _regPPUWrite8(int address, int value) {
-    if (address == 0x2002) {
-      emulator.ppu.registers.status = value;
-    }
+    _regPPUWrite(address, value);
     _memory.write8(address, value);
   }
 
   /// PPU寄存器读取
   int _regPPURead8(int address) {
-    final value = _memory.read8(address);
-    if (address == 0x2002) {
-      emulator.ppu.endVBlank();
-    }
-    return value;
+    return _regPPURead(address);
   }
 
   /// PPU寄存器写入
   void _regPPUWriteU16(int address, int value) {
-    if (address == 0x2002) {
-      emulator.ppu.registers.status = value;
-    }
+    _regPPUWrite(address, value);
     _memory.writeU16(address, value);
   }
 
   /// PPU寄存器读取
   int _regPPUReadU16(int address) {
-    final value = _memory.readU16(address);
-    if (address == 0x2002) {
-      emulator.ppu.endVBlank();
-    }
-    return value;
+    return _regPPURead(address);
   }
 
   /// PPU寄存器写入
   void _regPPUWrite16(int address, int value) {
-    if (address == 0x2002) {
-      emulator.ppu.registers.status = value;
-    }
+    _regPPUWrite(address, value);
     _memory.write16(address, value);
   }
 
   /// PPU寄存器读取
   int _regPPURead16(int address) {
-    final value = _memory.read16(address);
-    if (address == 0x2002) {
-      emulator.ppu.endVBlank();
+    return _regPPURead(address);
+  }
+
+  /// PPU寄存器写入
+  void _regPPUWrite(int address, int value) {
+    switch (address) {
+      case 0x2002:
+        emulator.ppu.registers.status = value;
+        break;
+    }
+  }
+
+  /// PPU寄存器读取
+  int _regPPURead(int address) {
+    int value = 0;
+    switch (address) {
+      case 0x2002:
+        value = emulator.ppu.registers.status;
+        emulator.ppu.endVBlank();
+        break;
     }
     return value;
   }
