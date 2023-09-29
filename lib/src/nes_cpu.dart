@@ -1,3 +1,5 @@
+import 'package:nes_dart/nes_dart.dart';
+
 import 'nes_cpu_executor.dart';
 import 'nes_cpu_addressing.dart';
 import 'logger.dart';
@@ -68,6 +70,18 @@ class NESCpu {
   CpuClockSpeed clockSpeed = clockSpeedNTSC;
 
   NESCpu(this.emulator);
+
+  /// PUSH
+  void push(int value) {
+    emulator.mapper.writeU8(NESMapper.minStackAddress + registers.sp, value);
+    registers.sp--;
+  }
+
+  /// POP
+  int pop() {
+    registers.sp++;
+    return emulator.mapper.readU8(NESMapper.minStackAddress + registers.sp);
+  }
 
   /// 执行一次
   int execute() {

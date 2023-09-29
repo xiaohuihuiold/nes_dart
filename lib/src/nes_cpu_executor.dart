@@ -1,6 +1,3 @@
-import 'package:nes_dart/nes_dart.dart';
-
-import 'logger.dart';
 import 'nes_cpu_codes.dart';
 import 'nes_emulator.dart';
 import 'nes_cpu_registers.dart';
@@ -84,7 +81,7 @@ class NESCpuExecutor {
     list[NESOp.php.index] = defaultExecutor;
     list[NESOp.plp.index] = defaultExecutor;
     list[NESOp.jmp.index] = defaultExecutor;
-    list[NESOp.beq.index] = defaultExecutor;
+    list[NESOp.beq.index] = _executeBEQ;
     list[NESOp.bne.index] = _executeBNE;
     list[NESOp.bcs.index] = defaultExecutor;
     list[NESOp.bcc.index] = defaultExecutor;
@@ -92,8 +89,8 @@ class NESCpuExecutor {
     list[NESOp.bpl.index] = _executeBPL;
     list[NESOp.bvs.index] = defaultExecutor;
     list[NESOp.bvc.index] = defaultExecutor;
-    list[NESOp.jsr.index] = defaultExecutor;
-    list[NESOp.rts.index] = defaultExecutor;
+    list[NESOp.jsr.index] = _executeJSR;
+    list[NESOp.rts.index] = _executeRTS;
     list[NESOp.nop.index] = defaultExecutor;
     list[NESOp.brk.index] = defaultExecutor;
     list[NESOp.rti.index] = defaultExecutor;
@@ -402,6 +399,14 @@ class NESCpuExecutor {
     registers.checkAndUpdateStatus(NESCpuStatusRegister.z, value);
   }
 
+  /// 标志[NESCpuStatusRegister.z]==1跳转
+  /// TODO: 时钟周期同一页面+1,不同页面+2
+  void _executeBEQ(NESOpCode op, int address) {
+    if (registers.getStatus(NESCpuStatusRegister.z) == 1) {
+      registers.pc = address;
+    }
+  }
+
   /// 标志[NESCpuStatusRegister.z]==0跳转
   /// TODO: 时钟周期同一页面+1,不同页面+2
   void _executeBNE(NESOpCode op, int address) {
@@ -416,5 +421,21 @@ class NESCpuExecutor {
     if (registers.getStatus(NESCpuStatusRegister.s) == 1) {
       registers.pc = address;
     }
+  }
+
+  /// 跳转至子程序,记录当前地址
+  void _executeJSR(NESOpCode op, int address) {
+    final pc = registers.pc - 1;
+    cpu.push(pc >> 8);
+    cpu.push(pc);
+    registers.pc = address;
+  }
+
+  /// 从子程序返回
+  void _executeRTS(NESOpCode op, int address) {
+    final pcL = cpu.pop();
+    final pcH = cpu.pop();
+    registers.pc = pcL | (pcH << 8);
+    registers.pc++;
   }
 }

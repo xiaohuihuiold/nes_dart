@@ -32,6 +32,9 @@ abstract class NESMapper {
   /// PPU结束地址
   static const maxPPUAddress = 0x3FFF;
 
+  /// 栈地址
+  static const minStackAddress = 0x100;
+
   /// 模拟器
   final NESEmulator emulator;
 
