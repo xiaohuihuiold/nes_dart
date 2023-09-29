@@ -105,7 +105,7 @@ class NESCpuRegisters extends ChangeNotifier {
   void checkAndUpdateStatus(NESCpuStatusRegister flag, int value) {
     switch (flag) {
       case NESCpuStatusRegister.s:
-        setStatus(NESCpuStatusRegister.s, value < 0 ? 1 : 0);
+        setStatus(NESCpuStatusRegister.s, (value >> 7) & 1);
         break;
       case NESCpuStatusRegister.z:
         setStatus(NESCpuStatusRegister.z, value == 0 ? 1 : 0);
