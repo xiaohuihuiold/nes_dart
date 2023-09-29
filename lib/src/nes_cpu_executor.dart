@@ -1,3 +1,5 @@
+import 'package:nes_dart/nes_dart.dart';
+
 import 'logger.dart';
 import 'nes_cpu_codes.dart';
 import 'nes_emulator.dart';
@@ -41,40 +43,40 @@ class NESCpuExecutor {
     list[NESOp.unk.index] = defaultExecutor;
     list[NESOp.lda.index] = _executeLDA;
     list[NESOp.ldx.index] = _executeLDX;
-    list[NESOp.ldy.index] = defaultExecutor;
+    list[NESOp.ldy.index] = _executeLDY;
     list[NESOp.sta.index] = _executeSTA;
-    list[NESOp.stx.index] = defaultExecutor;
-    list[NESOp.sty.index] = defaultExecutor;
-    list[NESOp.adc.index] = defaultExecutor;
-    list[NESOp.sbc.index] = defaultExecutor;
-    list[NESOp.inc.index] = defaultExecutor;
-    list[NESOp.dec.index] = defaultExecutor;
-    list[NESOp.and.index] = defaultExecutor;
-    list[NESOp.ora.index] = defaultExecutor;
-    list[NESOp.era.index] = defaultExecutor;
-    list[NESOp.inx.index] = defaultExecutor;
-    list[NESOp.dex.index] = defaultExecutor;
-    list[NESOp.iny.index] = defaultExecutor;
-    list[NESOp.dey.index] = defaultExecutor;
-    list[NESOp.tax.index] = defaultExecutor;
-    list[NESOp.txa.index] = defaultExecutor;
-    list[NESOp.tay.index] = defaultExecutor;
-    list[NESOp.tya.index] = defaultExecutor;
-    list[NESOp.tsx.index] = defaultExecutor;
+    list[NESOp.stx.index] = _executeSTX;
+    list[NESOp.sty.index] = _executeSTY;
+    list[NESOp.adc.index] = _executeADC;
+    list[NESOp.sbc.index] = _executeSBC;
+    list[NESOp.inc.index] = _executeINC;
+    list[NESOp.dec.index] = _executeDEC;
+    list[NESOp.and.index] = _executeAND;
+    list[NESOp.ora.index] = _executeORA;
+    list[NESOp.era.index] = _executeERA;
+    list[NESOp.inx.index] = _executeINX;
+    list[NESOp.dex.index] = _executeDEX;
+    list[NESOp.iny.index] = _executeINY;
+    list[NESOp.dey.index] = _executeDEY;
+    list[NESOp.tax.index] = _executeTAX;
+    list[NESOp.txa.index] = _executeTXA;
+    list[NESOp.tay.index] = _executeTAY;
+    list[NESOp.tya.index] = _executeTYA;
+    list[NESOp.tsx.index] = _executeTSX;
     list[NESOp.txs.index] = _executeTXS;
-    list[NESOp.clc.index] = defaultExecutor;
-    list[NESOp.sec.index] = defaultExecutor;
+    list[NESOp.clc.index] = _executeCLC;
+    list[NESOp.sec.index] = _executeSEC;
     list[NESOp.cld.index] = _executeCLD;
-    list[NESOp.sed.index] = defaultExecutor;
-    list[NESOp.clv.index] = defaultExecutor;
-    list[NESOp.cli.index] = defaultExecutor;
+    list[NESOp.sed.index] = _executeSED;
+    list[NESOp.clv.index] = _executeCLV;
+    list[NESOp.cli.index] = _executeCLI;
     list[NESOp.sei.index] = _executeSEI;
-    list[NESOp.cmp.index] = defaultExecutor;
-    list[NESOp.cpx.index] = defaultExecutor;
-    list[NESOp.cpy.index] = defaultExecutor;
-    list[NESOp.bit.index] = defaultExecutor;
-    list[NESOp.asl.index] = defaultExecutor;
-    list[NESOp.lsr.index] = defaultExecutor;
+    list[NESOp.cmp.index] = _executeCMP;
+    list[NESOp.cpx.index] = _executeCPX;
+    list[NESOp.cpy.index] = _executeCPY;
+    list[NESOp.bit.index] = _executeBIT;
+    list[NESOp.asl.index] = _executeASL;
+    list[NESOp.lsr.index] = _executeLSR;
     list[NESOp.rol.index] = defaultExecutor;
     list[NESOp.ror.index] = defaultExecutor;
     list[NESOp.pha.index] = defaultExecutor;
@@ -83,7 +85,7 @@ class NESCpuExecutor {
     list[NESOp.plp.index] = defaultExecutor;
     list[NESOp.jmp.index] = defaultExecutor;
     list[NESOp.beq.index] = defaultExecutor;
-    list[NESOp.bne.index] = defaultExecutor;
+    list[NESOp.bne.index] = _executeBNE;
     list[NESOp.bcs.index] = defaultExecutor;
     list[NESOp.bcc.index] = defaultExecutor;
     list[NESOp.bmi.index] = defaultExecutor;
@@ -116,7 +118,7 @@ class NESCpuExecutor {
     executor(op, address);
   }
 
-  /// 值存入寄存器X
+  /// 值存入[NESCpuRegisters.x]
   void _executeLDX(NESOpCode op, int address) {
     final value = mapper.read8(address);
     registers.x = value;
@@ -124,12 +126,172 @@ class NESCpuExecutor {
     registers.checkAndUpdateStatus(NESCpuStatusRegister.z, value);
   }
 
-  /// 将累加器A的值写入地址
+  /// 值存入[NESCpuRegisters.y]
+  void _executeLDY(NESOpCode op, int address) {
+    final value = mapper.read8(address);
+    registers.y = value;
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.s, value);
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.z, value);
+  }
+
+  /// 将[NESCpuRegisters.acc]的值写入地址
   void _executeSTA(NESOpCode op, int address) {
     mapper.writeU8(address, registers.acc);
   }
 
-  /// 值存入A累加器
+  /// 将[NESCpuRegisters.x]的值写入地址
+  void _executeSTX(NESOpCode op, int address) {
+    mapper.writeU8(address, registers.x);
+  }
+
+  /// 将[NESCpuRegisters.y]的值写入地址
+  void _executeSTY(NESOpCode op, int address) {
+    mapper.writeU8(address, registers.y);
+  }
+
+  /// 将[NESCpuRegisters.aac]与[NESCpuStatusRegister.c]和[address]的值相加
+  /// 结果存入[NESCpuRegisters.aac]
+  void _executeADC(NESOpCode op, int address) {
+    final value = mapper.read8(address);
+    final result =
+        registers.acc + registers.getStatus(NESCpuStatusRegister.c) + value;
+    final result8 = result & 0xFF;
+    registers.setStatus(NESCpuStatusRegister.c, result >> 8);
+    if (((registers.acc ^ value) & 0x80) == 0 &&
+        ((registers.acc ^ result8) & 0x80) != 0) {
+      registers.setStatus(NESCpuStatusRegister.v, 1);
+    } else {
+      registers.setStatus(NESCpuStatusRegister.v, 0);
+    }
+    registers.acc = result8;
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.s, result8);
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.z, result8);
+  }
+
+  /// 将[NESCpuRegisters.aac]减去[NESCpuStatusRegister.c]和[address]的值
+  /// 结果存入[NESCpuRegisters.aac]
+  void _executeSBC(NESOpCode op, int address) {
+    final value = mapper.read8(address);
+    final result =
+        registers.acc - registers.getStatus(NESCpuStatusRegister.c) - value;
+    final result8 = result & 0xFF;
+    registers.setStatus(NESCpuStatusRegister.c, result >> 8);
+    if (((registers.acc ^ value) & 0x80) == 0 &&
+        ((registers.acc ^ result8) & 0x80) != 0) {
+      registers.setStatus(NESCpuStatusRegister.v, 1);
+    } else {
+      registers.setStatus(NESCpuStatusRegister.v, 0);
+    }
+    registers.acc = result8;
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.s, result8);
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.z, result8);
+  }
+
+  /// [address]的值+1
+  void _executeINC(NESOpCode op, int address) {
+    final value = mapper.read8(address) + 1;
+    mapper.writeU8(address, value);
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.s, value);
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.z, value);
+  }
+
+  /// [address]的值-1
+  void _executeDEC(NESOpCode op, int address) {
+    final value = mapper.read8(address) - 1;
+    mapper.writeU8(address, value);
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.s, value);
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.z, value);
+  }
+
+  /// [address]的值与[NESCpuRegisters.aac]进行与运算
+  void _executeAND(NESOpCode op, int address) {
+    registers.acc &= mapper.read8(address);
+    final value = mapper.read8(registers.acc);
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.s, value);
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.z, value);
+  }
+
+  /// [address]的值与[NESCpuRegisters.aac]进行或运算
+  void _executeORA(NESOpCode op, int address) {
+    registers.acc |= mapper.read8(address);
+    final value = mapper.read8(registers.acc);
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.s, value);
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.z, value);
+  }
+
+  /// [address]的值与[NESCpuRegisters.aac]进行异或运算
+  void _executeERA(NESOpCode op, int address) {
+    registers.acc ^= mapper.read8(address);
+    final value = mapper.read8(registers.acc);
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.s, value);
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.z, value);
+  }
+
+  /// 将[NESCpuRegisters.x]的值+1
+  void _executeINX(NESOpCode op, int address) {
+    registers.x++;
+    final value = registers.x;
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.s, value);
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.z, value);
+  }
+
+  /// 将[NESCpuRegisters.x]的值-1
+  void _executeDEX(NESOpCode op, int address) {
+    registers.x--;
+    final value = registers.x;
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.s, value);
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.z, value);
+  }
+
+  /// 将[NESCpuRegisters.y]的值+1
+  void _executeINY(NESOpCode op, int address) {
+    registers.y++;
+    final value = registers.y;
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.s, value);
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.z, value);
+  }
+
+  /// 将[NESCpuRegisters.y]的值-1
+  void _executeDEY(NESOpCode op, int address) {
+    registers.y--;
+    final value = registers.y;
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.s, value);
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.z, value);
+  }
+
+  /// 将[NESCpuRegisters.acc]的值放入[NESCpuRegisters.x]
+  void _executeTAX(NESOpCode op, int address) {
+    registers.x = registers.acc;
+    final value = registers.x;
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.s, value);
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.z, value);
+  }
+
+  /// 将[NESCpuRegisters.x]的值放入[NESCpuRegisters.acc]
+  void _executeTXA(NESOpCode op, int address) {
+    registers.acc = registers.x;
+    final value = registers.acc;
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.s, value);
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.z, value);
+  }
+
+  /// 将[NESCpuRegisters.acc]的值放入[NESCpuRegisters.y]
+  void _executeTAY(NESOpCode op, int address) {
+    registers.y = registers.acc;
+    final value = registers.y;
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.s, value);
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.z, value);
+  }
+
+  /// 将[NESCpuRegisters.y]的值放入[NESCpuRegisters.acc]
+  void _executeTYA(NESOpCode op, int address) {
+    registers.acc = registers.y;
+    final value = registers.acc;
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.s, value);
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.z, value);
+  }
+
+  /// 值存入[NESCpuRegisters.acc]
   void _executeLDA(NESOpCode op, int address) {
     final value = mapper.read8(address);
     registers.acc = value;
@@ -137,22 +299,119 @@ class NESCpuExecutor {
     registers.checkAndUpdateStatus(NESCpuStatusRegister.z, value);
   }
 
-  /// 寄存器X值存入SP
+  /// [NESCpuRegisters.sp]的值存入[NESCpuRegisters.x
+  void _executeTSX(NESOpCode op, int address) {
+    registers.x = registers.sp;
+    final value = registers.x;
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.s, value);
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.z, value);
+  }
+
+  /// [NESCpuRegisters.x]的值存入[NESCpuRegisters.sp]
   void _executeTXS(NESOpCode op, int address) {
     registers.sp = registers.x;
   }
 
-  /// 清除十进制模式标志
+  /// 清除[NESCpuStatusRegister.c]
+  void _executeCLC(NESOpCode op, int address) {
+    registers.setStatus(NESCpuStatusRegister.c, 0);
+  }
+
+  /// 设置[NESCpuStatusRegister.c]
+  void _executeSEC(NESOpCode op, int address) {
+    registers.setStatus(NESCpuStatusRegister.c, 1);
+  }
+
+  /// 清除十进制模式[NESCpuStatusRegister.d]标志
   void _executeCLD(NESOpCode op, int address) {
     registers.setStatus(NESCpuStatusRegister.d, 0);
   }
 
-  /// 设置中断禁止标准
+  /// 设置十进制模式[NESCpuStatusRegister.d]标志
+  void _executeSED(NESOpCode op, int address) {
+    registers.setStatus(NESCpuStatusRegister.d, 1);
+  }
+
+  /// 清除[NESCpuStatusRegister.v]标志
+  void _executeCLV(NESOpCode op, int address) {
+    registers.setStatus(NESCpuStatusRegister.v, 0);
+  }
+
+  /// 清除[NESCpuStatusRegister.i]标志
+  void _executeCLI(NESOpCode op, int address) {
+    registers.setStatus(NESCpuStatusRegister.i, 0);
+  }
+
+  /// 设置中断[NESCpuStatusRegister.i]禁止
   void _executeSEI(NESOpCode op, int address) {
     registers.setStatus(NESCpuStatusRegister.i, 1);
   }
 
-  /// 标志S=1跳转
+  /// 比较[address]的值与[NESCpuRegisters.acc]
+  void _executeCMP(NESOpCode op, int address) {
+    final value = registers.acc - mapper.read8(address);
+    registers.setStatus(NESCpuStatusRegister.c, value >= 0 ? 1 : 0);
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.s, value & 0xFF);
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.z, value & 0xFF);
+  }
+
+  /// 比较[address]的值与[NESCpuRegisters.x]
+  void _executeCPX(NESOpCode op, int address) {
+    final value = registers.x - mapper.read8(address);
+    registers.setStatus(NESCpuStatusRegister.c, value >= 0 ? 1 : 0);
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.s, value & 0xFF);
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.z, value & 0xFF);
+  }
+
+  /// 比较[address]的值与[NESCpuRegisters.y]
+  void _executeCPY(NESOpCode op, int address) {
+    final value = registers.y - mapper.read8(address);
+    registers.setStatus(NESCpuStatusRegister.c, value >= 0 ? 1 : 0);
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.s, value & 0xFF);
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.z, value & 0xFF);
+  }
+
+  /// [NESCpuRegisters.acc]&[address]==0时[NESCpuStatusRegister.z]=1,否则[NESCpuStatusRegister.z]=0
+  /// 且[NESCpuStatusRegister.s]=[address]值的第七位
+  /// [NESCpuStatusRegister.v]=[address]值的第六位
+  void _executeBIT(NESOpCode op, int address) {
+    final value = mapper.read8(address);
+    registers.setStatus(NESCpuStatusRegister.v, (value >> 6) & 1);
+    registers.setStatus(NESCpuStatusRegister.s, (value >> 7) & 1);
+    registers.setStatus(
+        NESCpuStatusRegister.z, registers.acc & value == 0 ? 1 : 0);
+  }
+
+  /// [NESCpuRegisters.acc]或者[address]按位左移一位
+  void _executeASL(NESOpCode op, int address) {
+    int value = mapper.read8(address);
+    registers.setStatus(NESCpuStatusRegister.c, value & 0x80 > 0 ? 1 : 0);
+    value <<= 1;
+    mapper.writeU8(address, value);
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.s, value);
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.z, value);
+  }
+
+  /// [NESCpuRegisters.acc]或者[address]按位右移一位
+  void _executeLSR(NESOpCode op, int address) {
+    int value = mapper.read8(address);
+    registers.setStatus(NESCpuStatusRegister.c, value & 0x80 > 0 ? 1 : 0);
+    value >>= 1;
+    mapper.writeU8(address, value);
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.s, value);
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.z, value);
+  }
+
+  /// 标志[NESCpuStatusRegister.z]==0跳转
+  /// TODO: 时钟周期同一页面+1,不同页面+2
+  void _executeBNE(NESOpCode op, int address) {
+    if (registers.getStatus(NESCpuStatusRegister.z) == 0) {
+      registers.pc = address;
+    }
+  }
+
+  /// 标志[NESCpuStatusRegister.s]==1跳转
+  /// TODO: 时钟周期同一页面+1,不同页面+2
   void _executeBPL(NESOpCode op, int address) {
     if (registers.getStatus(NESCpuStatusRegister.s) == 1) {
       registers.pc = address;
