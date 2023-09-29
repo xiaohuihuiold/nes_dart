@@ -154,25 +154,25 @@ class _EmulatorStatusBarState extends State<_EmulatorStatusBar> {
                   ),
                   const VerticalDivider(),
                   SizedBox(
-                    width: 40,
+                    width: 60,
                     child: Text(
                         'SP: ${registers.sp.toRadixString(16).toUpperCase()}'),
                   ),
                   const VerticalDivider(),
                   SizedBox(
-                    width: 40,
+                    width: 50,
                     child: Text(
                         'X: ${registers.x.toRadixString(16).toUpperCase()}'),
                   ),
                   const VerticalDivider(),
                   SizedBox(
-                    width: 40,
+                    width: 50,
                     child: Text(
                         'Y: ${registers.y.toRadixString(16).toUpperCase()}'),
                   ),
                   const VerticalDivider(),
                   SizedBox(
-                    width: 60,
+                    width: 70,
                     child: Text(
                         'ACC: ${registers.acc.toRadixString(16).toUpperCase()}'),
                   ),
