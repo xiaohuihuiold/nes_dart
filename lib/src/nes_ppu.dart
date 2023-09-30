@@ -29,6 +29,9 @@ class NESPpu {
   /// 图样表最大地址
   static const maxPatternAddress = 0x1FFF;
 
+  /// 名称表最大地址
+  static const maxNameTablesAddress = 0x3EFF;
+
   /// VRAM
   final _memory = NESMemory();
 
@@ -116,14 +119,18 @@ class NESPpu {
     }
   }
 
-  /// 开始VBlank
+  /// 开始VBlank,设置[NESPpuRegister.status]的[NESPpuStatusRegister.vBlank]标志位
+  /// 修改内存会自动更新PPU寄存器
   void beginVBlank() {
-    emulator.mapper.writeU8(0x2002, registers.status | 0x80);
+    emulator.mapper.writeU8(NESPpuRegister.status.address,
+        registers.status | NESPpuStatusRegister.vBlank.bit);
   }
 
-  /// 结束VBlank
+  /// 结束VBlank,清除[NESPpuRegister.status]的[NESPpuStatusRegister.vBlank]标志位
+  /// 修改内存会自动更新PPU寄存器
   void endVBlank() {
-    emulator.mapper.writeU8(0x2002, registers.status & (~0x80));
+    emulator.mapper.writeU8(NESPpuRegister.status.address,
+        registers.status & (~NESPpuStatusRegister.vBlank.bit));
   }
 
   /// 绘制像素点

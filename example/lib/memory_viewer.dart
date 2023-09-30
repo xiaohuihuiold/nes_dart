@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nes_dart/nes_dart.dart';
 
+/// TODO: 需要修改为从内存读取
 /// 内存查看器
 class MemoryViewer extends StatefulWidget {
   /// 模拟器对象

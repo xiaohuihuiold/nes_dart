@@ -5,6 +5,7 @@ import 'constants.dart';
 import 'nes_memory.dart';
 import 'nes_emulator.dart';
 import 'nes_cpu.dart';
+import 'nes_ppu_registers.dart';
 
 /// Mapper
 ///
@@ -269,21 +270,17 @@ class NESMapper000 extends NESMapper {
 
   /// PPU寄存器写入
   void _regPPUWrite(int address, int value) {
-    switch (address) {
-      case 0x2002:
-        emulator.ppu.registers.status = value;
-        break;
+    if (address == NESPpuRegister.status.address) {
+      emulator.ppu.registers.status = value;
     }
   }
 
   /// PPU寄存器读取
   int _regPPURead(int address) {
     int value = 0;
-    switch (address) {
-      case 0x2002:
-        value = emulator.ppu.registers.status;
-        emulator.ppu.endVBlank();
-        break;
+    if (address == NESPpuRegister.status.address) {
+      value = emulator.ppu.registers.status;
+      emulator.ppu.endVBlank();
     }
     return value;
   }
