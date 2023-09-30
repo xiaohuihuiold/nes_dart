@@ -23,8 +23,8 @@ class _NESPageState extends State<NESPage> {
     final rom = await NESRomLoader.loadFromAsset('assets/roms/nestest.nes');
     _emulator = NESEmulator(
       rom: rom,
-      logCpu: true,
-      logPpuRegisters: true,
+      //logCpu: true,
+      //logPpuRegisters: true,
       logVideoMemory: true,
     );
     _emulator?.state.addListener(() {
@@ -33,7 +33,7 @@ class _NESPageState extends State<NESPage> {
       }
     });
     // TODO: 限制CPU速度
-    _emulator?.cpu.clockSpeed = NESCpu.clockSpeedDebug;
+    // _emulator?.cpu.clockSpeed = NESCpu.clockSpeedDebug;
     if (mounted) setState(() {});
   }
 
