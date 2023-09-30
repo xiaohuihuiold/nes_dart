@@ -48,6 +48,20 @@ enum NESPpuStatusRegister {
   const NESPpuStatusRegister(this.bit);
 }
 
+/// PPU控制寄存器
+enum NESPpuCtrlRegister {
+  /// 读写显存增量
+  /// 0: +1列,1: +32行
+  inc(1 << 2),
+
+  /// 是否NMI中断
+  nmi(1 << 7);
+
+  final int bit;
+
+  const NESPpuCtrlRegister(this.bit);
+}
+
 /// PPU寄存器
 /// !!!不要直接修改寄存器,需要通过[emulator.mapper]来修改值
 class NESPpuRegisters extends ChangeNotifier {
@@ -56,6 +70,19 @@ class NESPpuRegisters extends ChangeNotifier {
 
   /// 模拟器
   NESEmulator get emulator => ppu.emulator;
+
+  /// 控制寄存器
+  int _ctrl = 0;
+
+  int get ctrl => _ctrl;
+
+  set ctrl(int value) {
+    _ctrl = value & 0xFF;
+    notifyListeners();
+    if (emulator.logPpuRegisters) {
+      logger.v('PPU REG: SET CTRL=${_ctrl.toRadixString(16).toUpperCase()}');
+    }
+  }
 
   /// 状态寄存器
   int _status = 0;
@@ -78,18 +105,14 @@ class NESPpuRegisters extends ChangeNotifier {
 
   int get vramPointer => _vramPointer;
 
-  bool first = true;
+  bool vramPointerFirst = true;
 
   set vramPointer(int value) {
-    if (first) {
-      _vramPointer = (value & 0xFF) << 8;
-    } else {
-      _vramPointer |= (value & 0xFF);
-    }
+    _vramPointer = value & 0xFFFF;
     notifyListeners();
     if (emulator.logPpuRegisters) {
       logger.v(
-          'PPU REG: SET VRAM POINTER(${first ? 'H' : 'L'}=${_vramPointer.toRadixString(16).toUpperCase()}');
+          'PPU REG: SET VRAM POINTER=${_vramPointer.toRadixString(16).toUpperCase()}');
     }
   }
 

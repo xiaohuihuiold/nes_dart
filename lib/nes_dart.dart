@@ -15,4 +15,5 @@ export 'src/nes_ppu_registers.dart';
 export 'src/nes_view.dart';
 export 'src/nes_palettes.dart';
 export 'src/constants.dart';
+export 'src/logger.dart';
 export 'src/utils.dart';

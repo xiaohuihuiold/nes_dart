@@ -103,6 +103,7 @@ class NESCpuRegisters extends ChangeNotifier {
 
   /// 检查更新状态寄存器
   void checkAndUpdateStatus(NESCpuStatusRegister flag, int value) {
+    value &= 0xFF;
     switch (flag) {
       case NESCpuStatusRegister.s:
         setStatus(NESCpuStatusRegister.s, (value >> 7) & 1);

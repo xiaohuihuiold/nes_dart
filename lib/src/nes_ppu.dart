@@ -124,6 +124,9 @@ class NESPpu {
   void beginVBlank() {
     emulator.mapper.writeU8(NESPpuRegister.status.address,
         registers.status | NESPpuStatusRegister.vBlank.bit);
+    if (registers.status & NESPpuCtrlRegister.nmi.bit != 0) {
+      emulator.cpu.executeNMI();
+    }
   }
 
   /// 结束VBlank,清除[NESPpuRegister.status]的[NESPpuStatusRegister.vBlank]标志位
@@ -134,7 +137,7 @@ class NESPpu {
   }
 
   /// 绘制像素点
-  void drawPoint(int x, int y, int rbga) async {
+  void drawPoint(int x, int y, int rbga) {
     if (x <= 0 || x > 256 || y <= 0 || y > 240) {
       return;
     }
@@ -143,7 +146,11 @@ class NESPpu {
 
   /// TODO: PPU其它表
   int readU8(int address) {
+    _printRead(address);
+    _incVramPointer();
     if (address <= maxPatternAddress) {
+      return _memory.readU8(address);
+    } else if (address <= maxNameTablesAddress) {
       return _memory.readU8(address);
     }
     return 0;
@@ -151,14 +158,22 @@ class NESPpu {
 
   /// TODO: PPU其它表
   void writeU8(int address, int value) {
+    _printWrite(address, value);
+    _incVramPointer();
     if (address <= maxPatternAddress) {
+      _memory.writeU8(address, value);
+    } else if (address <= maxNameTablesAddress) {
       _memory.writeU8(address, value);
     }
   }
 
   /// TODO: PPU其它表
   int readU16(int address) {
+    _printRead(address);
+    _incVramPointer();
     if (address <= maxPatternAddress) {
+      return _memory.readU16(address);
+    } else if (address <= maxNameTablesAddress) {
       return _memory.readU16(address);
     }
     return 0;
@@ -166,7 +181,11 @@ class NESPpu {
 
   /// TODO: PPU其它表
   void writeU16(int address, int value) {
+    _printWrite(address, value);
+    _incVramPointer();
     if (address <= maxPatternAddress) {
+      _memory.writeU16(address, value);
+    } else if (address <= maxNameTablesAddress) {
       _memory.writeU16(address, value);
     }
   }
@@ -179,11 +198,16 @@ class NESPpu {
     _memory.writeAll(address, bytes, start: start, end: end);
   }
 
+  void _incVramPointer() {
+    registers.vramPointer +=
+        (registers.ctrl & NESPpuCtrlRegister.inc.bit) == 0 ? 1 : 32;
+  }
+
   /// 打印读消息
   void _printRead(int address) {
     if (emulator.logVideoMemory) {
-      logger
-          .v('R VRAM: \$${address.toRadixString(16).toUpperCase().padLeft(4, '0')}');
+      logger.v(
+          'R VRAM: \$${address.toRadixString(16).toUpperCase().padLeft(4, '0')}');
     }
   }
 

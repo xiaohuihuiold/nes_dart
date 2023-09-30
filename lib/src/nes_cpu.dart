@@ -86,6 +86,21 @@ class NESCpu {
     return emulator.mapper.readU8(NESMapper.minStackAddress + registers.sp);
   }
 
+  /// NMI中断
+  void executeNMI() {
+    final pcH = (registers.pc >> 8) & 0xFF;
+    final pcL = registers.pc & 0xFF;
+    push(pcH);
+    push(pcL);
+    push(registers.status | NESCpuStatusRegister.r.bit);
+    registers.setStatus(NESCpuStatusRegister.i, 1);
+    final pcL2 = emulator.mapper
+        .readU8(emulator.mapper.readInterruptAddress(NESCpuInterrupt.nmi) + 0);
+    final pcH2 = emulator.mapper
+        .readU8(emulator.mapper.readInterruptAddress(NESCpuInterrupt.nmi) + 1);
+    registers.pc = pcL2 | (pcH2 << 8);
+  }
+
   /// 执行一次
   int execute() {
     if (emulator.logCpu) {
