@@ -23,11 +23,17 @@ class NESEmulator {
   /// 是否输出内存日志
   bool logMemory = false;
 
+  /// 是否输出显存日志
+  bool logVideoMemory = false;
+
   /// 是否输出CPU日志
   bool logCpu = false;
 
   /// 是否输出寄存器日志
   bool logRegisters = false;
+
+  /// 是否输出PPU寄存器日志
+  bool logPpuRegisters = false;
 
   /// 帧率
   final double frameRate;
@@ -69,8 +75,10 @@ class NESEmulator {
     required this.rom,
     this.frameRate = 60,
     this.logMemory = false,
+    this.logVideoMemory = false,
     this.logCpu = false,
     this.logRegisters = false,
+    this.logPpuRegisters = false,
   }) {
     // TODO: 根据mapper编号创建
     _mapper = NESMapper000(this);

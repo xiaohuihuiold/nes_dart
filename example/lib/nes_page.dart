@@ -28,7 +28,7 @@ class _NESPageState extends State<NESPage> {
       }
     });
     // TODO: 限制CPU速度
-    // _emulator?.cpu.clockSpeed = NESCpu.clockSpeedDebug;
+    _emulator?.cpu.clockSpeed = NESCpu.clockSpeedSlow;
     if (mounted) setState(() {});
   }
 

@@ -1,11 +1,10 @@
-import 'package:nes_dart/nes_dart.dart';
-
 import 'nes_cpu_executor.dart';
 import 'nes_cpu_addressing.dart';
 import 'logger.dart';
 import 'nes_emulator.dart';
 import 'nes_cpu_registers.dart';
 import 'nes_cpu_codes.dart';
+import 'nes_mapper.dart';
 
 /// CPU中断
 ///
@@ -42,6 +41,10 @@ class NESCpu {
   /// 调试用速度
   static const clockSpeedDebug =
       CpuClockSpeed(speed: 1000, timeUs: 1000000 / 1000);
+
+  /// 慢速
+  static const clockSpeedSlow =
+      CpuClockSpeed(speed: 10000, timeUs: 1000000 / 10000);
 
   /// PAL
   static const clockSpeedPAL =

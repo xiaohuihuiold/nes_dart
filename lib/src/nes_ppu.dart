@@ -178,4 +178,22 @@ class NESPpu {
   void writeAll(int address, List<int> bytes, {int start = 0, int? end}) {
     _memory.writeAll(address, bytes, start: start, end: end);
   }
+
+  /// 打印读消息
+  void _printRead(int address) {
+    if (emulator.logVideoMemory) {
+      logger
+          .v('R VRAM: \$${address.toRadixString(16).toUpperCase().padLeft(4, '0')}');
+    }
+  }
+
+  /// 打印写消息
+  void _printWrite(int address, int value) {
+    if (emulator.logVideoMemory) {
+      logger.v('W VRAM: '
+          '\$${address.toRadixString(16).toUpperCase().padLeft(4, '0')}'
+          '='
+          '${value.toRadixString(16).toUpperCase()}');
+    }
+  }
 }

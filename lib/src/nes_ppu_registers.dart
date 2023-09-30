@@ -65,9 +65,31 @@ class NESPpuRegisters extends ChangeNotifier {
   set status(int value) {
     _status = value & 0xFF;
     notifyListeners();
-    if (emulator.logRegisters) {
+    if (emulator.logPpuRegisters) {
       logger
           .v('PPU REG: SET STATUS=${_status.toRadixString(16).toUpperCase()}');
+    }
+  }
+
+  /// 显存指针
+  /// 第一次写入高八位
+  /// 第二次写入低八位
+  int _vramPointer = 0;
+
+  int get vramPointer => _vramPointer;
+
+  bool first = true;
+
+  set vramPointer(int value) {
+    if (first) {
+      _vramPointer = (value & 0xFF) << 8;
+    } else {
+      _vramPointer |= (value & 0xFF);
+    }
+    notifyListeners();
+    if (emulator.logPpuRegisters) {
+      logger.v(
+          'PPU REG: SET VRAM POINTER(${first ? 'H' : 'L'}=${_vramPointer.toRadixString(16).toUpperCase()}');
     }
   }
 

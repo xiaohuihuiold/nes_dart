@@ -272,6 +272,12 @@ class NESMapper000 extends NESMapper {
   void _regPPUWrite(int address, int value) {
     if (address == NESPpuRegister.status.address) {
       emulator.ppu.registers.status = value;
+    } else if (address == NESPpuRegister.vramPointer.address) {
+      // 写显存指针
+      emulator.ppu.registers.vramPointer = value;
+    } else if (address == NESPpuRegister.vramData.address) {
+      // 写显存数据
+      emulator.ppu.writeU8(emulator.ppu.registers.vramPointer, value);
     }
   }
 
@@ -281,6 +287,12 @@ class NESMapper000 extends NESMapper {
     if (address == NESPpuRegister.status.address) {
       value = emulator.ppu.registers.status;
       emulator.ppu.endVBlank();
+    } else if (address == NESPpuRegister.vramPointer.address) {
+      // 读显存指针,不一定会用到
+      value = emulator.ppu.registers.vramPointer;
+    } else if (address == NESPpuRegister.vramData.address) {
+      // 读显存数据
+      value = emulator.ppu.readU8(emulator.ppu.registers.vramPointer);
     }
     return value;
   }
