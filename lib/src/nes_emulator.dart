@@ -20,6 +20,9 @@ enum NESEmulatorState {
 
 /// NES模拟器
 class NESEmulator {
+  /// 是否Debug
+  bool debug = false;
+
   /// 是否输出内存日志
   bool logMemory = false;
 
@@ -34,6 +37,9 @@ class NESEmulator {
 
   /// 是否输出PPU寄存器日志
   bool logPpuRegisters = false;
+
+  /// 是否输出循环日志
+  bool logLoop = false;
 
   /// 帧率
   final double frameRate;
@@ -74,11 +80,13 @@ class NESEmulator {
   NESEmulator({
     required this.rom,
     this.frameRate = 60,
+    this.debug = false,
     this.logMemory = false,
     this.logVideoMemory = false,
     this.logCpu = false,
     this.logRegisters = false,
     this.logPpuRegisters = false,
+    this.logLoop = false,
   }) {
     // TODO: 根据mapper编号创建
     _mapper = NESMapper000(this);
@@ -100,9 +108,9 @@ class NESEmulator {
 
   /// 重置
   void reset() {
-    mapper.reset();
-    cpu.reset();
     ppu.reset();
+    cpu.reset();
+    mapper.reset();
     logger.i('模拟器已重置');
   }
 
@@ -148,6 +156,9 @@ class NESEmulator {
         final beginTime = Time.nowUs;
         int cycleCount = 0;
         while (cycleCount < cpu.clockSpeed.speed / frameRate) {
+          if (debug && state.value == NESEmulatorState.running) {
+            await Future.delayed(const Duration(milliseconds: 1));
+          }
           cycleCount += cpu.execute();
         }
         ppu.beginVBlank();
@@ -156,7 +167,10 @@ class NESEmulator {
         final delay = ((1000 * 1000 / frameRate) - spendTime)
             .toInt()
             .clamp(0, 1000 * 1000);
-        logger.v('帧: $cycleCount(cycles)\t $spendTime(us)\t delay: $delay(us)');
+        if (logLoop) {
+          logger
+              .v('帧: $cycleCount(cycles)\t $spendTime(us)\t delay: $delay(us)');
+        }
         await Future.delayed(Duration(microseconds: delay));
         _overTime = Time.nowUs - lastTime - delay;
         _fps++;
@@ -197,7 +211,7 @@ class NESEmulator {
       final op = NESCpuCodes.getOP(byte);
 
       if (op.op == NESOp.error) {
-        logger.e('错误: ${byte.toRadixString(16)}');
+        logger.e('错误的指令: ${byte.toRadixString(16)}');
         break;
       }
 
@@ -232,7 +246,7 @@ class NESEmulator {
       final op = NESCpuCodes.getOP(byte);
 
       if (op.op == NESOp.error) {
-        logger.e('错误: ${byte.toRadixString(16)}');
+        logger.e('错误的指令: ${byte.toRadixString(16)}');
         break;
       }
 

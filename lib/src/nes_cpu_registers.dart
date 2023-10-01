@@ -103,10 +103,9 @@ class NESCpuRegisters extends ChangeNotifier {
 
   /// 检查更新状态寄存器
   void checkAndUpdateStatus(NESCpuStatusRegister flag, int value) {
-    value &= 0xFF;
     switch (flag) {
       case NESCpuStatusRegister.s:
-        setStatus(NESCpuStatusRegister.s, (value >> 7) & 1);
+        setStatus(NESCpuStatusRegister.s, (value >> 7) != 0 ? 1 : 0);
         break;
       case NESCpuStatusRegister.z:
         setStatus(NESCpuStatusRegister.z, value == 0 ? 1 : 0);
@@ -118,12 +117,12 @@ class NESCpuRegisters extends ChangeNotifier {
 
   /// 重置寄存器
   void reset() {
-    status = 0;
+    status = 0x34;
     acc = 0;
     x = 0;
     y = 0;
     pc = 0;
-    sp = 0;
+    sp = 0xFD;
   }
 }
 

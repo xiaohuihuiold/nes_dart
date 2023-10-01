@@ -22,7 +22,7 @@ enum NESPpuRegister {
   spriteRamData(0x2004),
 
   /// 屏幕滚动偏移
-  screenScrollOffset(0x2005),
+  scrollOffset(0x2005),
 
   /// 显存指针
   vramPointer(0x2006),
@@ -84,6 +84,18 @@ class NESPpuRegisters extends ChangeNotifier {
     }
   }
 
+  /// 掩码寄存器
+  int _mask = 0;
+
+  int get mask => _mask;
+
+  set mask(int value) {
+    _mask = value & 0xFF;
+    if (emulator.logPpuRegisters) {
+      logger.v('PPU REG: SET MASK=${_mask.toRadixString(16).toUpperCase()}');
+    }
+  }
+
   /// 状态寄存器
   int _status = 0;
 
@@ -95,6 +107,38 @@ class NESPpuRegisters extends ChangeNotifier {
     if (emulator.logPpuRegisters) {
       logger
           .v('PPU REG: SET STATUS=${_status.toRadixString(16).toUpperCase()}');
+    }
+  }
+
+  /// 精灵RAM指针
+  int _spriteRamPointer = 0;
+
+  int get spriteRamPointer => _spriteRamPointer;
+
+  set spriteRamPointer(int value) {
+    _spriteRamPointer = value & 0xFF;
+    notifyListeners();
+    if (emulator.logPpuRegisters) {
+      logger.v(
+          'PPU REG: SET SPRITE RAM POINTER=${_spriteRamPointer.toRadixString(16).toUpperCase()}');
+    }
+  }
+
+  /// 滚动偏移
+  /// 第一次写入高八位
+  /// 第二次写入低八位
+  int _scrollOffset = 0;
+
+  int get scrollOffset => _scrollOffset;
+
+  bool scrollOffsetFirst = true;
+
+  set scrollOffset(int value) {
+    _scrollOffset = value & 0xFFFF;
+    notifyListeners();
+    if (emulator.logPpuRegisters) {
+      logger.v(
+          'PPU REG: SET SCROLL OFFSET=${_scrollOffset.toRadixString(16).toUpperCase()}');
     }
   }
 
@@ -120,6 +164,13 @@ class NESPpuRegisters extends ChangeNotifier {
 
   /// 重置寄存器
   void reset() {
+    ctrl = 0;
+    mask = 0;
     status = 0;
+    spriteRamPointer = 0;
+    scrollOffset = 0;
+    scrollOffsetFirst = true;
+    vramPointer = 0;
+    vramPointerFirst = true;
   }
 }

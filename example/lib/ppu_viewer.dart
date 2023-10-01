@@ -173,11 +173,48 @@ class _PatternTableState extends State<_PatternTable> {
     if (patternTable == null) {
       return;
     }
-    for (int i = 0; i < patternTable.length; i++) {
-      // 2位表示一个像素,一个字节4个像素
-      // 16字节描述8x8图块
-      final byte = patternTable[i];
-      for (int j = 0; j < 4; j++) {
+    int x = 0;
+    int y = 1;
+    int blockX = 0;
+    int blockY = 0;
+    for (int i = 0; i < patternTable.length; i += 16) {
+      // 2位表示一个像素
+      // 16字节描述8x8图块,一共16x16图块
+      // 前8字节表示2位的低位,后8字节表示高位
+      for (int b = 0; b < 8; b++) {
+        final byteL = patternTable[i + b];
+        final byteH = patternTable[i + b + 8];
+        for (int j = 7; j >= 0; j--) {
+          final pL = (byteL >> j) & 1;
+          final pH = (byteH >> j) & 1;
+          final pixel = pL | (pH << 1);
+          int color = 0x000000FF;
+          if (pixel == 0) {
+            color = 0x000000FF;
+          } else if (pixel == 1) {
+            color = 0xFF0000FF;
+          } else if (pixel == 2) {
+            color = 0x00FF00FF;
+          } else if (pixel == 3) {
+            color = 0x0000FFFF;
+          }
+          x++;
+          if (x > 8) {
+            x = 1;
+            y++;
+          }
+          if (y > 8) {
+            y = 1;
+            blockX++;
+            if (blockX >= 16) {
+              blockX = 0;
+              blockY++;
+            }
+          }
+          _drawPoint(blockX * 8 + x, blockY * 8 + y, color);
+        }
+      }
+      /*for (int j = 0; j < 4; j++) {
         final pixel = (byte >> j) & 0x3;
         int color = 0x000000FF;
         if (pixel == 0) {
@@ -189,9 +226,13 @@ class _PatternTableState extends State<_PatternTable> {
         } else if (pixel == 3) {
           color = 0x0000FFFF;
         }
-        final x = (i * 4 + j) % 128;
-        _drawPoint(x, (i * 4 + j) - x, color);
-      }
+        x++;
+        if (x > 8) {
+          x = 1;
+          y++;
+        }
+        _drawPoint(x, y, color);
+      }*/
       /*for (int j = 0; j < 16; j++) {
         final byte = patternTable[i * 16 + j];
         for (int k = 0; k < 4; k++) {

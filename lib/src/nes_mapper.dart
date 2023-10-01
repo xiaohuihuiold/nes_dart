@@ -272,8 +272,25 @@ class NESMapper000 extends NESMapper {
   void _regPPUWrite(int address, int value) {
     if (address == NESPpuRegister.ctrl.address) {
       emulator.ppu.registers.ctrl = value;
+    } else if (address == NESPpuRegister.mask.address) {
+      emulator.ppu.registers.mask = value;
     } else if (address == NESPpuRegister.status.address) {
       emulator.ppu.registers.status = value;
+    } else if (address == NESPpuRegister.spriteRamPointer.address) {
+      emulator.ppu.registers.spriteRamPointer = value;
+    } else if (address == NESPpuRegister.spriteRamData.address) {
+      emulator.ppu
+          .spriteRamWrite(emulator.ppu.registers.spriteRamPointer, value);
+      emulator.ppu.registers.spriteRamPointer++;
+    } else if (address == NESPpuRegister.scrollOffset.address) {
+      // 写滚动偏移
+      if (emulator.ppu.registers.scrollOffsetFirst) {
+        emulator.ppu.registers.scrollOffsetFirst = false;
+        emulator.ppu.registers.scrollOffset = (value & 0xFF) << 8;
+      } else {
+        emulator.ppu.registers.scrollOffsetFirst = true;
+        emulator.ppu.registers.scrollOffset |= (value & 0xFF);
+      }
     } else if (address == NESPpuRegister.vramPointer.address) {
       // 写显存指针
       if (emulator.ppu.registers.vramPointerFirst) {
@@ -286,23 +303,40 @@ class NESMapper000 extends NESMapper {
     } else if (address == NESPpuRegister.vramData.address) {
       // 写显存数据
       emulator.ppu.writeU8(emulator.ppu.registers.vramPointer, value);
+    } else {
+      throw Exception(
+          '未实现的PPU寄存器: \$${address.toRadixString(16).toUpperCase().padLeft(4, '0')}');
     }
   }
 
   /// PPU寄存器读取
   int _regPPURead(int address) {
     int value = 0;
-    if (address == NESPpuRegister.status.address) {
-      value = emulator.ppu.registers.status;
-      emulator.ppu.endVBlank();
+    if (address == NESPpuRegister.ctrl.address) {
+      value = emulator.ppu.registers.ctrl;
+    } else if (address == NESPpuRegister.mask.address) {
+      value = emulator.ppu.registers.mask;
     } else if (address == NESPpuRegister.status.address) {
       value = emulator.ppu.registers.status;
+      emulator.ppu.endVBlank();
+    } else if (address == NESPpuRegister.spriteRamPointer.address) {
+      value = emulator.ppu.registers.spriteRamPointer;
+    } else if (address == NESPpuRegister.spriteRamData.address) {
+      value =
+          emulator.ppu.spriteRamRead(emulator.ppu.registers.spriteRamPointer);
+      emulator.ppu.registers.spriteRamPointer++;
+    } else if (address == NESPpuRegister.scrollOffset.address) {
+      // 读滚动偏移,不一定会用到
+      value = emulator.ppu.registers.scrollOffset;
     } else if (address == NESPpuRegister.vramPointer.address) {
       // 读显存指针,不一定会用到
       value = emulator.ppu.registers.vramPointer;
     } else if (address == NESPpuRegister.vramData.address) {
       // 读显存数据
       value = emulator.ppu.readU8(emulator.ppu.registers.vramPointer);
+    } else {
+      throw Exception(
+          '未实现的PPU寄存器: \$${address.toRadixString(16).toUpperCase().padLeft(4, '0')}');
     }
     return value;
   }

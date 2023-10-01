@@ -23,17 +23,17 @@ class _NESPageState extends State<NESPage> {
     final rom = await NESRomLoader.loadFromAsset('assets/roms/nestest.nes');
     _emulator = NESEmulator(
       rom: rom,
-      //logCpu: true,
-      //logPpuRegisters: true,
-      logVideoMemory: true,
+      /*debug: true,
+      logCpu: true,
+      logLoop: true,
+      logPpuRegisters: true,
+      logVideoMemory: true,*/
     );
     _emulator?.state.addListener(() {
       if (_emulator?.state.value == NESEmulatorState.stopped) {
         _onStop();
       }
     });
-    // TODO: 限制CPU速度
-    // _emulator?.cpu.clockSpeed = NESCpu.clockSpeedDebug;
     if (mounted) setState(() {});
   }
 
@@ -153,7 +153,7 @@ class _EmulatorStatusBarState extends State<_EmulatorStatusBar> {
               return Row(
                 children: [
                   SizedBox(
-                    width: 60,
+                    width: 80,
                     child: Text(
                         'PC: ${registers.pc.toRadixString(16).toUpperCase()}'),
                   ),
