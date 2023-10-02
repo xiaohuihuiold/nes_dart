@@ -59,6 +59,11 @@ class _PPUViewerState extends State<PPUViewer> {
             _PaletteViewer(emulator: emulator),
             const SizedBox(height: 8),
             const Divider(),
+            const Text('调色板索引'),
+            const SizedBox(height: 8),
+            _PaletteIndex(emulator: emulator),
+            const SizedBox(height: 8),
+            const Divider(),
             const Text('图样表'),
             const SizedBox(height: 8),
             _PatternTable(index: 0, emulator: emulator),
@@ -96,6 +101,90 @@ class _PaletteViewer extends StatelessWidget {
                       child: AspectRatio(
                         aspectRatio: 1.0,
                         child: _buildColor(palette[i * 16 + k]),
+                      ),
+                    )
+                ],
+              ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildColor(int rgba) {
+    int argb = rgba >> 8;
+    argb |= (rgba & 0xff) << 24;
+    return Container(
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: Color(argb),
+        border: Border.all(color: Colors.grey, width: 1),
+      ),
+    );
+  }
+}
+
+/// 调色板索引
+class _PaletteIndex extends StatefulWidget {
+  final NESEmulator emulator;
+
+  const _PaletteIndex({
+    super.key,
+    required this.emulator,
+  });
+
+  @override
+  State<_PaletteIndex> createState() => _PaletteIndexState();
+}
+
+class _PaletteIndexState extends State<_PaletteIndex> {
+  Timer? _refreshTimer;
+  Uint8List? _paletteIndices;
+
+  void _refreshData() {
+    _paletteIndices = widget.emulator.ppu.readAll(0x3F00, 0x20);
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
+      try {
+        _refreshData();
+      } catch (e) {
+        logger.e('PaletteIndex', error: e);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    _refreshTimer = null;
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<List<int>>(
+      valueListenable: widget.emulator.ppu.palette,
+      builder: (context, palette, child) {
+        final paletteIndices = _paletteIndices;
+        if (paletteIndices == null) {
+          return const SizedBox();
+        }
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (int i = 0; i < 2; i++)
+              Row(
+                children: [
+                  for (int k = 0; k < 16; k++)
+                    Expanded(
+                      child: AspectRatio(
+                        aspectRatio: 1.0,
+                        child: _buildColor(palette[paletteIndices[i * 16 + k]]),
                       ),
                     )
                 ],

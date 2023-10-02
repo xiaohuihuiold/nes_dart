@@ -128,7 +128,7 @@ class NESPpu {
   void beginVBlank() {
     emulator.mapper.writeU8(NESPpuRegister.status.address,
         registers.status | NESPpuStatusRegister.vBlank.bit);
-    if (registers.status & NESPpuCtrlRegister.nmi.bit != 0) {
+    if (registers.ctrl & NESPpuCtrlRegister.nmi.bit != 0) {
       emulator.cpu.executeNMI();
     }
   }
@@ -171,32 +171,6 @@ class NESPpu {
       _memory.writeU8(address, value);
     } else {
       _memory.writeU8(address, value);
-    }
-  }
-
-  /// TODO: PPU其它表
-  int readU16(int address) {
-    _printRead(address);
-    _incVramPointer();
-    if (address <= maxPatternAddress) {
-      return _memory.readU16(address);
-    } else if (address <= maxNameTablesAddress) {
-      return _memory.readU16(address);
-    } else {
-      return _memory.readU16(address);
-    }
-  }
-
-  /// TODO: PPU其它表
-  void writeU16(int address, int value) {
-    _printWrite(address, value);
-    _incVramPointer();
-    if (address <= maxPatternAddress) {
-      _memory.writeU16(address, value);
-    } else if (address <= maxNameTablesAddress) {
-      _memory.writeU16(address, value);
-    } else {
-      _memory.writeU16(address, value);
     }
   }
 

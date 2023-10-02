@@ -157,7 +157,7 @@ class NESEmulator {
         int cycleCount = 0;
         while (cycleCount < cpu.clockSpeed.speed / frameRate) {
           if (debug && state.value == NESEmulatorState.running) {
-            await Future.delayed(const Duration(milliseconds: 1));
+            await Future.delayed(const Duration(milliseconds: 100));
           }
           cycleCount += cpu.execute();
         }
