@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:math';
 import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
@@ -30,7 +31,8 @@ class NESPpu {
   /// 图样表最大地址
   static const maxPatternAddress = 0x1FFF;
 
-  /// 名称表最大地址
+  /// 名称表地址
+  static const minNameTablesAddress = 0x2000;
   static const maxNameTablesAddress = 0x3EFF;
 
   /// VRAM
@@ -98,17 +100,51 @@ class NESPpu {
     }
   }
 
-  double _x = 0;
-  double _y = 0;
-
   /// 刷新屏幕
   void refreshScreen() {
-    _x += 0.2;
-    _y += 0.04;
-    if (_x > 256) {
-      _x = 0;
+    final nameTable = readAll(minNameTablesAddress, 0x400);
+    final patternTable = readAll(0, 0x1000);
+    int tileX = 0;
+    int tileY = 0;
+    for (int i = 0; i < 960; i++) {
+      final tileIndex = nameTable[i];
+      final tileBegin = tileIndex * 16;
+      int x = 0;
+      int y = 0;
+      for (int b = 0; b < 8; b++) {
+        final byteL = patternTable[tileBegin + b];
+        final byteH = patternTable[tileBegin + b + 8];
+        for (int j = 7; j >= 0; j--) {
+          final pL = (byteL >> j) & 1;
+          final pH = (byteH >> j) & 1;
+          final pixel = pL | (pH << 1);
+          int color = 0x000000FF;
+          if (pixel == 0) {
+            color = 0x000000FF;
+          } else if (pixel == 1) {
+            color = 0xFF0000FF;
+          } else if (pixel == 2) {
+            color = 0x00FF00FF;
+          } else if (pixel == 3) {
+            color = 0x0000FFFF;
+          }
+          drawPoint(tileX * 8 + x, tileY * 8 + y, color);
+          x++;
+          if (x >= 8) {
+            x = 0;
+            y++;
+          }
+          if (y >= 8) {
+            y = 0;
+          }
+        }
+      }
+      tileX++;
+      if (tileX >= 32) {
+        tileX = 0;
+        tileY++;
+      }
     }
-    drawPoint(_x.toInt(), (sin(_y) * 120).toInt() + 120, 0xFF0000FF);
   }
 
   /// 绘制像素点
@@ -228,14 +264,14 @@ class NESPpu {
   }
 
   void _printSpriteRead(int address) {
-    if (emulator.logVideoMemory) {
+    if (emulator.logVideoSpriteMemory) {
       logger.v(
           'R SRAM: \$${address.toRadixString(16).toUpperCase().padLeft(4, '0')}');
     }
   }
 
   void _printSpriteWrite(int address, int value) {
-    if (emulator.logVideoMemory) {
+    if (emulator.logVideoSpriteMemory) {
       logger.v('W SRAM: '
           '\$${address.toRadixString(16).toUpperCase().padLeft(4, '0')}'
           '='

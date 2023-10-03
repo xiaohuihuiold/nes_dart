@@ -161,7 +161,7 @@ class NESCpuExecutor {
       registers.setStatus(NESCpuStatusRegister.v, 0);
     }
     registers.acc = result;
-    registers.setStatus(NESCpuStatusRegister.c, result > 0xFF ? 1 : 0);
+    registers.setStatus(NESCpuStatusRegister.c, (result >> 8) == 0 ? 0 : 1);
     registers.checkAndUpdateStatus(NESCpuStatusRegister.s, result);
     registers.checkAndUpdateStatus(NESCpuStatusRegister.z, result);
   }
@@ -179,7 +179,7 @@ class NESCpuExecutor {
       registers.setStatus(NESCpuStatusRegister.v, 0);
     }
     registers.acc = result;
-    registers.setStatus(NESCpuStatusRegister.c, result > 0xFF ? 1 : 0);
+    registers.setStatus(NESCpuStatusRegister.c, (result >> 8) == 0 ? 1 : 0);
     registers.checkAndUpdateStatus(NESCpuStatusRegister.s, result);
     registers.checkAndUpdateStatus(NESCpuStatusRegister.z, result);
   }
@@ -347,7 +347,7 @@ class NESCpuExecutor {
   /// 比较[address]的值与[NESCpuRegisters.acc]
   void _executeCMP(NESOpCode op, int address) {
     final value = registers.acc - mapper.readU8(address);
-    registers.setStatus(NESCpuStatusRegister.c, value >= 0 ? 1 : 0);
+    registers.setStatus(NESCpuStatusRegister.c, (value & 0x8000) == 0 ? 1 : 0);
     registers.checkAndUpdateStatus(NESCpuStatusRegister.s, value);
     registers.checkAndUpdateStatus(NESCpuStatusRegister.z, value);
   }
@@ -355,7 +355,7 @@ class NESCpuExecutor {
   /// 比较[address]的值与[NESCpuRegisters.x]
   void _executeCPX(NESOpCode op, int address) {
     final value = registers.x - mapper.readU8(address);
-    registers.setStatus(NESCpuStatusRegister.c, value >= 0 ? 1 : 0);
+    registers.setStatus(NESCpuStatusRegister.c, (value & 0x8000) == 0 ? 1 : 0);
     registers.checkAndUpdateStatus(NESCpuStatusRegister.s, value);
     registers.checkAndUpdateStatus(NESCpuStatusRegister.z, value);
   }
@@ -363,7 +363,7 @@ class NESCpuExecutor {
   /// 比较[address]的值与[NESCpuRegisters.y]
   void _executeCPY(NESOpCode op, int address) {
     final value = registers.y - mapper.readU8(address);
-    registers.setStatus(NESCpuStatusRegister.c, value >= 0 ? 1 : 0);
+    registers.setStatus(NESCpuStatusRegister.c, (value & 0x8000) == 0 ? 1 : 0);
     registers.checkAndUpdateStatus(NESCpuStatusRegister.s, value);
     registers.checkAndUpdateStatus(NESCpuStatusRegister.z, value);
   }
@@ -373,23 +373,24 @@ class NESCpuExecutor {
   /// [NESCpuStatusRegister.v]=[address]值的第六位
   void _executeBIT(NESOpCode op, int address) {
     final value = mapper.readU8(address);
-    registers.setStatus(NESCpuStatusRegister.v, (value >> 6) & 1);
-    registers.setStatus(NESCpuStatusRegister.s, (value >> 7) & 1);
+    registers.setStatus(NESCpuStatusRegister.v, value & (1 << 6) == 0 ? 0 : 1);
+    registers.setStatus(NESCpuStatusRegister.s, value & (1 << 7) == 0 ? 0 : 1);
     registers.setStatus(
-        NESCpuStatusRegister.z, registers.acc & value == 0 ? 0 : 1);
+        NESCpuStatusRegister.z, registers.acc & value == 0 ? 1 : 0);
   }
 
   /// [NESCpuRegisters.acc]或者[address]按位左移一位
   void _executeASL(NESOpCode op, int address) {
     if (op.addressing == NESAddressing.accumulator) {
-      registers.setStatus(NESCpuStatusRegister.c, (registers.acc >> 7) & 1);
+      registers.setStatus(
+          NESCpuStatusRegister.c, registers.acc & 0x80 == 0 ? 0 : 1);
       registers.acc <<= 1;
       final value = registers.acc;
       registers.checkAndUpdateStatus(NESCpuStatusRegister.s, value);
       registers.checkAndUpdateStatus(NESCpuStatusRegister.z, value);
     } else {
       int value = mapper.readU8(address);
-      registers.setStatus(NESCpuStatusRegister.c, (value >> 7) & 1);
+      registers.setStatus(NESCpuStatusRegister.c, value & 0x80 == 0 ? 0 : 1);
       value <<= 1;
       mapper.writeU8(address, value);
       registers.checkAndUpdateStatus(NESCpuStatusRegister.s, value);
@@ -420,7 +421,7 @@ class NESCpuExecutor {
     if (op.addressing == NESAddressing.accumulator) {
       int value = registers.acc;
       final old = registers.getStatus(NESCpuStatusRegister.c);
-      registers.setStatus(NESCpuStatusRegister.c, (value >> 7) & 1);
+      registers.setStatus(NESCpuStatusRegister.c, (value & 0x100) == 0 ? 0 : 1);
       value = ((value << 1) & 0xFF) + old;
       registers.acc = value;
       registers.checkAndUpdateStatus(NESCpuStatusRegister.s, value);
@@ -428,7 +429,7 @@ class NESCpuExecutor {
     } else {
       int value = mapper.readU8(address);
       final old = registers.getStatus(NESCpuStatusRegister.c);
-      registers.setStatus(NESCpuStatusRegister.c, (value >> 7) & 1);
+      registers.setStatus(NESCpuStatusRegister.c, (value & 0x100) == 0 ? 0 : 1);
       value = ((value << 1) & 0xFF) + old;
       mapper.writeU8(address, value);
       registers.checkAndUpdateStatus(NESCpuStatusRegister.s, value);
@@ -446,9 +447,10 @@ class NESCpuExecutor {
       registers.checkAndUpdateStatus(NESCpuStatusRegister.s, value);
       registers.checkAndUpdateStatus(NESCpuStatusRegister.z, value);
     } else {
+      int value = mapper.readU8(address);
       final old = registers.getStatus(NESCpuStatusRegister.c) << 7;
-      registers.setStatus(NESCpuStatusRegister.c, registers.acc & 1);
-      int value = (registers.acc >> 1) + old;
+      registers.setStatus(NESCpuStatusRegister.c, value & 1);
+      value = (value >> 1) + old;
       mapper.writeU8(address, value);
       registers.checkAndUpdateStatus(NESCpuStatusRegister.s, value);
       registers.checkAndUpdateStatus(NESCpuStatusRegister.z, value);
@@ -601,7 +603,8 @@ class NESCpuExecutor {
     final value = registers.acc;
     registers.checkAndUpdateStatus(NESCpuStatusRegister.s, value);
     registers.checkAndUpdateStatus(NESCpuStatusRegister.z, value);
-    registers.setStatus(NESCpuStatusRegister.c, (value >> 7) & 1);
+    registers.setStatus(NESCpuStatusRegister.c,
+        registers.getStatus(NESCpuStatusRegister.s) == 0 ? 0 : 1);
   }
 
   /// [address]的值加载到[NESCpuRegisters.acc]和[NESCpuRegisters.x]
@@ -624,7 +627,7 @@ class NESCpuExecutor {
     value--;
     mapper.writeU8(address, value);
     int result = registers.acc - value;
-    registers.setStatus(NESCpuStatusRegister.c, result >= 0 ? 1 : 0);
+    registers.setStatus(NESCpuStatusRegister.c, (result & 0x8000) == 0 ? 1 : 0);
     registers.checkAndUpdateStatus(NESCpuStatusRegister.s, result);
     registers.checkAndUpdateStatus(NESCpuStatusRegister.z, result);
   }
@@ -637,7 +640,7 @@ class NESCpuExecutor {
 
     final result =
         registers.acc - registers.getStatus(NESCpuStatusRegister.c) - value;
-    registers.setStatus(NESCpuStatusRegister.c, result >> 8);
+    registers.setStatus(NESCpuStatusRegister.c, result < 0 ? 0 : 1);
     if (((registers.acc ^ value) & 0x80) != 0 &&
         ((registers.acc ^ result) & 0x80) != 0) {
       registers.setStatus(NESCpuStatusRegister.v, 1);
@@ -654,7 +657,7 @@ class NESCpuExecutor {
     // ROL
     int value = mapper.readU8(address);
     final old = registers.getStatus(NESCpuStatusRegister.c);
-    registers.setStatus(NESCpuStatusRegister.c, (value >> 7) & 1);
+    registers.setStatus(NESCpuStatusRegister.c, (value & 0x100) == 0 ? 0 : 1);
     value = ((value << 1) & 0xFF) + old;
     mapper.writeU8(address, value);
 
@@ -682,7 +685,7 @@ class NESCpuExecutor {
       registers.setStatus(NESCpuStatusRegister.v, 0);
     }
     registers.acc = result;
-    registers.setStatus(NESCpuStatusRegister.c, result > 0xFF ? 1 : 0);
+    registers.setStatus(NESCpuStatusRegister.c, (result >> 8) == 0 ? 0 : 1);
     registers.checkAndUpdateStatus(NESCpuStatusRegister.s, result);
     registers.checkAndUpdateStatus(NESCpuStatusRegister.z, result);
   }
@@ -691,7 +694,7 @@ class NESCpuExecutor {
   void _executeSLO(NESOpCode op, int address) {
     // ASL
     int value = mapper.readU8(address);
-    registers.setStatus(NESCpuStatusRegister.c, (value >> 7) & 1);
+    registers.setStatus(NESCpuStatusRegister.c, (value & 0x80) == 0 ? 0 : 1);
     value <<= 1;
     mapper.writeU8(address, value);
 

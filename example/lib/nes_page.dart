@@ -23,11 +23,12 @@ class _NESPageState extends State<NESPage> {
     final rom = await NESRomLoader.loadFromAsset('assets/roms/nestest.nes');
     _emulator = NESEmulator(
       rom: rom,
-      /*debug: true,
-      logCpu: true,
-      logLoop: true,
-      logPpuRegisters: true,
-      logVideoMemory: true,*/
+      // debug: true,
+      // logCpu: true,
+      // logRegisters: true,
+      // logLoop: true,
+      // logPpuRegisters: true,
+      // logVideoMemory: true,
     );
     _emulator?.state.addListener(() {
       if (_emulator?.state.value == NESEmulatorState.stopped) {
@@ -77,7 +78,8 @@ class _NESPageState extends State<NESPage> {
       body: Row(
         children: [
           MemoryViewer(emulator: emulator),
-          Expanded(child: Padding(
+          Expanded(
+              child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: body,
           )),

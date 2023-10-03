@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/foundation.dart';
 
 import 'logger.dart';
@@ -117,7 +119,7 @@ class NESCpuRegisters extends ChangeNotifier {
 
   /// 重置寄存器
   void reset() {
-    status = 0x34;
+    status = 0xB4;
     acc = 0;
     x = 0;
     y = 0;

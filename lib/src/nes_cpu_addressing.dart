@@ -197,7 +197,7 @@ class NESCpuAddressing {
   /// PC的值作为地址,并读取地址的值与Y变址寄存器相加
   int _addressingIndirectY() {
     int cycles = 0;
-    int address = emulator.mapper.read8(registers.pc);
+    int address = emulator.mapper.readU8(registers.pc);
     address = emulator.mapper.readU16(address);
     if (isDifferentPage(address, address + registers.y)) {
       cycles = 1;

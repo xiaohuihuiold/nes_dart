@@ -29,6 +29,9 @@ class NESEmulator {
   /// 是否输出显存日志
   bool logVideoMemory = false;
 
+  /// 是否输出显存Sprite日志
+  bool logVideoSpriteMemory = false;
+
   /// 是否输出CPU日志
   bool logCpu = false;
 
@@ -83,6 +86,7 @@ class NESEmulator {
     this.debug = false,
     this.logMemory = false,
     this.logVideoMemory = false,
+    this.logVideoSpriteMemory = false,
     this.logCpu = false,
     this.logRegisters = false,
     this.logPpuRegisters = false,
@@ -157,7 +161,7 @@ class NESEmulator {
         int cycleCount = 0;
         while (cycleCount < cpu.clockSpeed.speed / frameRate) {
           if (debug && state.value == NESEmulatorState.running) {
-            await Future.delayed(const Duration(milliseconds: 100));
+            await Future.delayed(const Duration(milliseconds: 10));
           }
           cycleCount += cpu.execute();
         }

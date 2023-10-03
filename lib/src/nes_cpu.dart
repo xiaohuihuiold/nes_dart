@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'nes_cpu_executor.dart';
 import 'nes_cpu_addressing.dart';
 import 'logger.dart';
@@ -96,7 +98,7 @@ class NESCpu {
   /// 执行一次
   int execute() {
     if (emulator.logCpu) {
-      logger.v('------cycles: $cycleCount------');
+      // logger.v('------cycles: $cycleCount------');
     }
     final beginCycleCount = cycleCount;
     final beginPc = registers.pc;
