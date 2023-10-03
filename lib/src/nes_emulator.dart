@@ -162,6 +162,9 @@ class NESEmulator {
           cycleCount += cpu.execute();
         }
         ppu.beginVBlank();
+        ppu.resetScreen();
+        ppu.refreshScreen();
+        await ppu.submitScreen();
         final spendTime = Time.nowUs - beginTime + _overTime;
         final lastTime = Time.nowUs;
         final delay = ((1000 * 1000 / frameRate) - spendTime)

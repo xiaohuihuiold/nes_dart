@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 
@@ -24,7 +25,7 @@ import 'logger.dart';
 /// | $4000-$FFFF | $BFFF | $0000-$3FFF的镜像   |
 class NESPpu {
   /// 屏幕缓冲区大小
-  static const screenBufferSize = (256 * 256 + 256) * 4;
+  static const screenBufferSize = (256 * 256 + 256) * 4 * 4;
 
   /// 图样表最大地址
   static const maxPatternAddress = 0x1FFF;
@@ -86,15 +87,36 @@ class NESPpu {
       _screenBuffer.setUint32(i, fillColor);
     }
     for (int i = 0; i < 32; i++) {
-      for (int y = 1; y <= 240; y++) {
-        drawPoint(i * 8 + 1, y, 0x222222FF);
+      for (int y = 0; y < 240; y++) {
+        drawPoint(i * 8, y, 0x222222FF);
       }
     }
     for (int i = 0; i < 30; i++) {
-      for (int x = 1; x <= 256; x++) {
-        drawPoint(x, i * 8 + 1, 0x222222FF);
+      for (int x = 0; x < 256; x++) {
+        drawPoint(x, i * 8, 0x222222FF);
       }
     }
+  }
+
+  double _x = 0;
+  double _y = 0;
+
+  /// 刷新屏幕
+  void refreshScreen() {
+    _x += 0.2;
+    _y += 0.04;
+    if (_x > 256) {
+      _x = 0;
+    }
+    drawPoint(_x.toInt(), (sin(_y) * 120).toInt() + 120, 0xFF0000FF);
+  }
+
+  /// 绘制像素点
+  void drawPoint(int x, int y, int rbga) {
+    if (x < 0 || x > 256 || y < 0 || y > 240) {
+      return;
+    }
+    _screenBuffer.setUint32((y * 256 + x) * 4, rbga);
   }
 
   /// 刷新屏幕
@@ -138,14 +160,6 @@ class NESPpu {
   void endVBlank() {
     emulator.mapper.writeU8(NESPpuRegister.status.address,
         registers.status & (~NESPpuStatusRegister.vBlank.bit));
-  }
-
-  /// 绘制像素点
-  void drawPoint(int x, int y, int rbga) {
-    if (x <= 0 || x > 256 || y <= 0 || y > 240) {
-      return;
-    }
-    _screenBuffer.setUint32(((y - 1) * 256 + (x - 1)) * 4, rbga);
   }
 
   /// TODO: PPU其它表

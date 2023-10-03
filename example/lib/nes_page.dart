@@ -77,7 +77,10 @@ class _NESPageState extends State<NESPage> {
       body: Row(
         children: [
           MemoryViewer(emulator: emulator),
-          Expanded(child: body),
+          Expanded(child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: body,
+          )),
           PPUViewer(emulator: emulator),
         ],
       ),
