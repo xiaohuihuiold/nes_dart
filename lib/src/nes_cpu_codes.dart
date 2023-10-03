@@ -242,14 +242,15 @@ class NESOpCode {
       [this.otherCycles = 0]);
 
   /// 错误指令
-  NESOpCode.error() : this(-1, 0, NESOp.error, NESAddressing.unknown, 0);
+  NESOpCode.error([int? opCode])
+      : this(opCode ?? -1, 0, NESOp.error, NESAddressing.unknown, 0);
 }
 
 /// 指令集
 class NESCpuCodes {
   /// 获取指令
   static NESOpCode getOP(int opCode) {
-    return nesCpuCodeMapping[opCode] ?? NESOpCode.error();
+    return nesCpuCodeMapping[opCode] ?? NESOpCode.error(opCode);
   }
 
   /// 指令映射
@@ -268,10 +269,22 @@ class NESCpuCodes {
   static final nesCpuCodes = [
     /// UNK
     NESOpCode(0x02, 1, NESOp.unk, NESAddressing.unknown, 2),
+    NESOpCode(0x12, 1, NESOp.unk, NESAddressing.unknown, 2),
+    NESOpCode(0x22, 1, NESOp.unk, NESAddressing.unknown, 2),
     NESOpCode(0x32, 1, NESOp.unk, NESAddressing.unknown, 2),
     NESOpCode(0x42, 1, NESOp.unk, NESAddressing.unknown, 2),
+    NESOpCode(0x52, 1, NESOp.unk, NESAddressing.unknown, 2),
     NESOpCode(0x62, 1, NESOp.unk, NESAddressing.unknown, 2),
     NESOpCode(0x72, 1, NESOp.unk, NESAddressing.unknown, 2),
+    NESOpCode(0x92, 1, NESOp.unk, NESAddressing.unknown, 2),
+    // TAS
+    NESOpCode(0x9B, 1, NESOp.unk, NESAddressing.unknown, 2),
+    // SHX
+    NESOpCode(0x9E, 1, NESOp.unk, NESAddressing.unknown, 2),
+    // XAA
+    NESOpCode(0x8B, 1, NESOp.unk, NESAddressing.unknown, 2),
+    // LAS
+    NESOpCode(0xBB, 1, NESOp.unk, NESAddressing.unknown, 2),
     NESOpCode(0xEB, 1, NESOp.unk, NESAddressing.unknown, 2),
 
     /// UNK
@@ -590,6 +603,7 @@ class NESCpuCodes {
     /// LAX
     NESOpCode(0xA3, 2, NESOp.lax, NESAddressing.indirectX, 6),
     NESOpCode(0xA7, 2, NESOp.lax, NESAddressing.zeroPage, 3),
+    NESOpCode(0xAB, 2, NESOp.lax, NESAddressing.immediate, 2),
     NESOpCode(0xAF, 3, NESOp.lax, NESAddressing.absolute, 4),
     NESOpCode(0xB3, 2, NESOp.lax, NESAddressing.indirectY, 5, 1),
     NESOpCode(0xB7, 2, NESOp.lax, NESAddressing.zeroPageY, 4),

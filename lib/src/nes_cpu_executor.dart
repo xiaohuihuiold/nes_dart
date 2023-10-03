@@ -13,7 +13,8 @@ void defaultExecutor(NESOpCode op, int address) {
   if (op.op == NESOp.unk || op.op == NESOp.nop) {
     return;
   }
-  throw Exception('未实现的指令: ${op.op}');
+  throw Exception(
+      '未实现的指令: ${op.opCode.toRadixString(16).padLeft(2, '0')} ${op.op}');
 }
 
 /// CPU执行器
@@ -94,13 +95,13 @@ class NESCpuExecutor {
     list[NESOp.rts.index] = _executeRTS;
     list[NESOp.nop.index] = defaultExecutor;
     list[NESOp.brk.index] = _executeBRK;
-    list[NESOp.rti.index] = defaultExecutor;
+    list[NESOp.rti.index] = _executeRTI;
     list[NESOp.alr.index] = defaultExecutor;
     list[NESOp.anc.index] = _executeANC;
     list[NESOp.arr.index] = defaultExecutor;
     list[NESOp.axs.index] = defaultExecutor;
     list[NESOp.lax.index] = _executeLAX;
-    list[NESOp.sax.index] = defaultExecutor;
+    list[NESOp.sax.index] = _executeSAX;
     list[NESOp.dcp.index] = _executeDCP;
     list[NESOp.isc.index] = _executeISC;
     list[NESOp.rla.index] = _executeRLA;
@@ -583,6 +584,17 @@ class NESCpuExecutor {
     registers.pc = pcL2 | (pcH2 << 8);
   }
 
+  /// 从中断返回
+  void _executeRTI(NESOpCode op, int address) {
+    registers.status = cpu.pop();
+    registers.setStatus(NESCpuStatusRegister.r, 1);
+    registers.setStatus(NESCpuStatusRegister.b, 0);
+
+    final pcL = cpu.pop();
+    final pcH = cpu.pop();
+    registers.pc = pcL | (pcH << 8);
+  }
+
   /// 与[NESCpuRegisters.acc],设置[NESCpuStatusRegister.c]到第七位
   void _executeANC(NESOpCode op, int address) {
     registers.acc &= mapper.readU8(address);
@@ -599,6 +611,11 @@ class NESCpuExecutor {
     registers.x = value;
     registers.checkAndUpdateStatus(NESCpuStatusRegister.s, value);
     registers.checkAndUpdateStatus(NESCpuStatusRegister.z, value);
+  }
+
+  /// [NESCpuRegisters.acc]和[NESCpuRegisters.x]写入[address]
+  void _executeSAX(NESOpCode op, int address) {
+    mapper.writeU8(address, registers.acc & registers.x);
   }
 
   /// [address]的值-1与[NESCpuRegisters.acc]比较
