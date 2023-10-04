@@ -1,5 +1,6 @@
 import 'package:example/memory_viewer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:nes_dart/nes_dart.dart';
 
 import 'ppu_viewer.dart';
@@ -13,6 +14,8 @@ class NESPage extends StatefulWidget {
 }
 
 class _NESPageState extends State<NESPage> {
+  final _focusNode = FocusNode();
+
   /// 模拟器对象
   NESEmulator? _emulator;
 
@@ -44,6 +47,46 @@ class _NESPageState extends State<NESPage> {
     setState(() {});
   }
 
+  /// 键盘事件
+  void _onKeyEvent(KeyEvent event) {
+    switch (event) {
+      case KeyDownEvent():
+        _onKeyDownEvent(event);
+        break;
+      case KeyUpEvent():
+        _onKeyUpEvent(event);
+        break;
+      case KeyRepeatEvent():
+        break;
+    }
+  }
+
+  NESControllerKey _getPlayer1Key(LogicalKeyboardKey key) {
+    return switch (key) {
+      LogicalKeyboardKey.keyW => NESControllerKey.up,
+      LogicalKeyboardKey.keyA => NESControllerKey.left,
+      LogicalKeyboardKey.keyS => NESControllerKey.down,
+      LogicalKeyboardKey.keyD => NESControllerKey.right,
+      LogicalKeyboardKey.enter => NESControllerKey.start,
+      LogicalKeyboardKey.keyN => NESControllerKey.a,
+      LogicalKeyboardKey.keyM => NESControllerKey.b,
+      LogicalKeyboardKey.space => NESControllerKey.select,
+      LogicalKeyboardKey() => NESControllerKey.select,
+    };
+  }
+
+  void _onKeyDownEvent(KeyDownEvent event) {
+    final key = _getPlayer1Key(event.logicalKey);
+    logger.v('按下: $key');
+    _emulator?.controller.onKeyDown(NESPlayer.player1, key);
+  }
+
+  void _onKeyUpEvent(KeyUpEvent event) {
+    final key = _getPlayer1Key(event.logicalKey);
+    logger.v('抬起: $key');
+    _emulator?.controller.onKeyUp(NESPlayer.player1, key);
+  }
+
   @override
   Widget build(BuildContext context) {
     final emulator = _emulator;
@@ -57,7 +100,17 @@ class _NESPageState extends State<NESPage> {
         ),
       );
     } else {
-      body = NESView(emulator: emulator);
+      body = KeyboardListener(
+        focusNode: _focusNode,
+        onKeyEvent: _onKeyEvent,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () {
+            FocusScope.of(context).requestFocus(_focusNode);
+          },
+          child: NESView(emulator: emulator),
+        ),
+      );
     }
 
     Widget controllerBar;
@@ -79,10 +132,11 @@ class _NESPageState extends State<NESPage> {
         children: [
           MemoryViewer(emulator: emulator),
           Expanded(
-              child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: body,
-          )),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: body,
+            ),
+          ),
           PPUViewer(emulator: emulator),
         ],
       ),

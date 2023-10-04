@@ -1,10 +1,12 @@
-import 'package:flutter/foundation.dart';
+import 'dart:developer';
 
+import 'package:flutter/foundation.dart';
 import 'logger.dart';
 import 'constants.dart';
 import 'nes_memory.dart';
 import 'nes_emulator.dart';
 import 'nes_cpu.dart';
+import 'nes_controller.dart';
 import 'nes_ppu_registers.dart';
 
 /// Mapper
@@ -35,6 +37,10 @@ abstract class NESMapper {
 
   /// 栈地址
   static const minStackAddress = 0x100;
+
+  /// 控制器地址
+  static const minControllerAddress = 0x4016;
+  static const maxControllerAddress = 0x4017;
 
   /// 模拟器
   final NESEmulator emulator;
@@ -121,6 +127,9 @@ class NESMapper000 extends NESMapper {
     } else if (address <= NESMapper.maxPPUAddress) {
       // $2000-$3FFF 映射到PPU寄存器
       return _regPPUReadU8(address & NESMapper.maskPPU);
+    } else if (address >= NESMapper.minControllerAddress &&
+        address <= NESMapper.maxControllerAddress) {
+      return _controllerReadU8(address);
     } else {
       return super.readU8(address);
     }
@@ -135,6 +144,9 @@ class NESMapper000 extends NESMapper {
     } else if (address <= NESMapper.maxPPUAddress) {
       // $2000-$3FFF 映射到PPU寄存器
       _regPPUWriteU8(address & NESMapper.maskPPU, value);
+    } else if (address >= NESMapper.minControllerAddress &&
+        address <= NESMapper.maxControllerAddress) {
+      _controllerWriteU8(address, value);
     } else {
       super.writeU8(address, value);
     }
@@ -149,6 +161,9 @@ class NESMapper000 extends NESMapper {
     } else if (address <= NESMapper.maxPPUAddress) {
       // $2000-$3FFF 映射到PPU寄存器
       return _regPPURead8(address & NESMapper.maskPPU);
+    } else if (address >= NESMapper.minControllerAddress &&
+        address <= NESMapper.maxControllerAddress) {
+      return _controllerRead8(address);
     } else {
       return super.read8(address);
     }
@@ -163,6 +178,9 @@ class NESMapper000 extends NESMapper {
     } else if (address <= NESMapper.maxPPUAddress) {
       // $2000-$3FFF 映射到PPU寄存器
       _regPPUWrite8(address & NESMapper.maskPPU, value);
+    } else if (address >= NESMapper.minControllerAddress &&
+        address <= NESMapper.maxControllerAddress) {
+      _controllerWrite8(address, value);
     } else {
       super.write8(address, value);
     }
@@ -177,6 +195,9 @@ class NESMapper000 extends NESMapper {
     } else if (address <= NESMapper.maxPPUAddress) {
       // $2000-$3FFF 映射到PPU寄存器
       return _regPPUReadU16(address & NESMapper.maskPPU);
+    } else if (address >= NESMapper.minControllerAddress &&
+        address <= NESMapper.maxControllerAddress) {
+      return _controllerReadU16(address);
     } else {
       return super.readU16(address);
     }
@@ -191,6 +212,9 @@ class NESMapper000 extends NESMapper {
     } else if (address <= NESMapper.maxPPUAddress) {
       // $2000-$3FFF 映射到PPU寄存器
       _regPPUWriteU16(address & NESMapper.maskPPU, value);
+    } else if (address >= NESMapper.minControllerAddress &&
+        address <= NESMapper.maxControllerAddress) {
+      _controllerWriteU16(address, value);
     } else {
       super.writeU16(address, value);
     }
@@ -205,6 +229,9 @@ class NESMapper000 extends NESMapper {
     } else if (address <= NESMapper.maxPPUAddress) {
       // $2000-$3FFF 映射到PPU寄存器
       return _regPPURead16(address & NESMapper.maskPPU);
+    } else if (address >= NESMapper.minControllerAddress &&
+        address <= NESMapper.maxControllerAddress) {
+      return _controllerRead16(address);
     } else {
       return super.read16(address);
     }
@@ -219,6 +246,9 @@ class NESMapper000 extends NESMapper {
     } else if (address <= NESMapper.maxPPUAddress) {
       // $2000-$3FFF 映射到PPU寄存器
       _regPPUWrite16(address & NESMapper.maskPPU, value);
+    } else if (address >= NESMapper.minControllerAddress &&
+        address <= NESMapper.maxControllerAddress) {
+      return _controllerWrite16(address, value);
     } else {
       super.write16(address, value);
     }
@@ -266,6 +296,50 @@ class NESMapper000 extends NESMapper {
   /// PPU寄存器读取
   int _regPPURead16(int address) {
     return _regPPURead(address);
+  }
+
+  /// 控制器寄存器写入
+  void _controllerWriteU8(int address, int value) {
+    _controllerWrite(address, value);
+    _memory.writeU8(address, value);
+  }
+
+  /// 控制器寄存器读取
+  int _controllerReadU8(int address) {
+    return _controllerRead(address);
+  }
+
+  /// 控制器寄存器写入
+  void _controllerWrite8(int address, int value) {
+    _controllerWrite(address, value);
+    _memory.write8(address, value);
+  }
+
+  /// 控制器寄存器读取
+  int _controllerRead8(int address) {
+    return _controllerRead(address);
+  }
+
+  /// 控制器寄存器写入
+  void _controllerWriteU16(int address, int value) {
+    _controllerWrite(address, value);
+    _memory.writeU16(address, value);
+  }
+
+  /// 控制器寄存器读取
+  int _controllerReadU16(int address) {
+    return _controllerRead(address);
+  }
+
+  /// 控制器寄存器写入
+  void _controllerWrite16(int address, int value) {
+    _controllerWrite(address, value);
+    _memory.write16(address, value);
+  }
+
+  /// 控制器寄存器读取
+  int _controllerRead16(int address) {
+    return _controllerRead(address);
   }
 
   /// PPU寄存器写入
@@ -337,6 +411,38 @@ class NESMapper000 extends NESMapper {
     } else {
       throw Exception(
           '未实现的PPU寄存器: \$${address.toRadixString(16).toUpperCase().padLeft(4, '0')}');
+    }
+    return value;
+  }
+
+  /// 控制器寄存器写入
+  void _controllerWrite(int address, int value) {
+    switch (address) {
+      case 0x4016:
+        // 手柄1
+        if (value & 1 == 1) {
+          emulator.controller.resetIndex();
+        }
+        break;
+      case 0x4017:
+        // 手柄2
+        // 只读
+        break;
+    }
+  }
+
+  /// 控制器寄存器读取
+  int _controllerRead(int address) {
+    int value = 0;
+    switch (address) {
+      case 0x4016:
+        // 手柄1
+        value = emulator.controller.getInputState(NESPlayer.player1);
+        break;
+      case 0x4017:
+        // 手柄2
+        value = emulator.controller.getInputState(NESPlayer.player2);
+        break;
     }
     return value;
   }

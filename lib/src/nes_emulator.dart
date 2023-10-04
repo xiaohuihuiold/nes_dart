@@ -5,10 +5,11 @@ import 'package:flutter/foundation.dart';
 import 'nes_cpu.dart';
 import 'nes_ppu.dart';
 import 'nes_mapper.dart';
-import 'logger.dart';
 import 'nes_cpu_codes.dart';
 import 'nes_rom.dart';
+import 'nes_controller.dart';
 import 'utils.dart';
+import 'logger.dart';
 
 /// 模拟器状态
 enum NESEmulatorState {
@@ -61,6 +62,9 @@ class NESEmulator {
   /// PPU
   late final ppu = NESPpu(this);
 
+  /// 控制器
+  late final controller = NESController(this);
+
   /// 模拟器状态
   final _stateValue = ValueNotifier<NESEmulatorState>(NESEmulatorState.idle);
 
@@ -112,6 +116,7 @@ class NESEmulator {
 
   /// 重置
   void reset() {
+    controller.reset();
     ppu.reset();
     cpu.reset();
     mapper.reset();
