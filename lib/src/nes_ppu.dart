@@ -35,6 +35,9 @@ class NESPpu {
   static const minNameTablesAddress = 0x2000;
   static const maxNameTablesAddress = 0x3EFF;
 
+  /// 调色板索引
+  static const minPaletteAddress = 0x3F00;
+
   /// VRAM
   final _memory = NESMemory();
 
@@ -102,32 +105,33 @@ class NESPpu {
 
   /// 刷新屏幕
   void refreshScreen() {
-    final nameTable = readAll(minNameTablesAddress, 0x400);
+    final nameTable = readAll(minNameTablesAddress, 960);
+    // 1字节4x4个图块
+    final attributeTable = readAll(minNameTablesAddress + 960, 64);
     final patternTable = readAll(0, 0x1000);
+    final palette = readAll(minPaletteAddress, 0x20);
+    final paletteData = palette.map((e) => this.palette.value[e]).toList();
+    // TODO: 优化实现
     int tileX = 0;
     int tileY = 0;
-    for (int i = 0; i < 960; i++) {
+    for (int i = 0; i < nameTable.length; i++) {
       final tileIndex = nameTable[i];
       final tileBegin = tileIndex * 16;
       int x = 0;
       int y = 0;
+      final attrX = tileX ~/ 4;
+      final attrY = tileY ~/ 4;
+      final attr = attributeTable[attrY * 8 + attrX];
       for (int b = 0; b < 8; b++) {
         final byteL = patternTable[tileBegin + b];
         final byteH = patternTable[tileBegin + b + 8];
+        final attrOffset = b ~/ 2;
+        final colorAttr = (attr >> (attrOffset * 2)) & 0x3;
         for (int j = 7; j >= 0; j--) {
           final pL = (byteL >> j) & 1;
           final pH = (byteH >> j) & 1;
           final pixel = pL | (pH << 1);
-          int color = 0x000000FF;
-          if (pixel == 0) {
-            color = 0x000000FF;
-          } else if (pixel == 1) {
-            color = 0xFF0000FF;
-          } else if (pixel == 2) {
-            color = 0x00FF00FF;
-          } else if (pixel == 3) {
-            color = 0x0000FFFF;
-          }
+          int color = paletteData[pixel | (colorAttr << 2)];
           drawPoint(tileX * 8 + x, tileY * 8 + y, color);
           x++;
           if (x >= 8) {
@@ -177,7 +181,7 @@ class NESPpu {
         oldScreen.dispose();
       }
     } catch (e) {
-      logger.e('屏幕刷新错误', error: e);
+      logger.e('屏幕提交错误', error: e);
     }
   }
 

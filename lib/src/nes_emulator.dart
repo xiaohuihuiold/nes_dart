@@ -166,8 +166,12 @@ class NESEmulator {
           cycleCount += cpu.execute();
         }
         ppu.beginVBlank();
-        ppu.resetScreen();
-        ppu.refreshScreen();
+        try {
+          ppu.resetScreen();
+          ppu.refreshScreen();
+        } catch (e) {
+          logger.e('屏幕刷新错误', error: e);
+        }
         await ppu.submitScreen();
         final spendTime = Time.nowUs - beginTime + _overTime;
         final lastTime = Time.nowUs;
