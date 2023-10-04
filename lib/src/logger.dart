@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:date_format/date_format.dart';
 import 'package:logger/logger.dart';
 
@@ -8,6 +9,7 @@ final logger = LoggerWrapper();
 class LoggerWrapper {
   final logger = Logger(
     printer: HybridPrinter(_MySimplePrinter()),
+    // output: FileOutput(file: File('./test.log')),
   );
 
   void nope() {}
@@ -81,7 +83,11 @@ class _MySimplePrinter extends SimplePrinter {
   List<String> log(LogEvent event) {
     var messageStr = _stringifyMessage(event.message);
     var errorStr = event.error != null ? '  ERROR: ${event.error}' : '';
-    var timeStr = printTime ? grey(formatDate(event.time, timeFormat)) : '';
+    var timeStr = printTime
+        ? (colors
+            ? grey(formatDate(event.time, timeFormat))
+            : formatDate(event.time, timeFormat))
+        : '';
     return ['${_labelFor(event.level)} $timeStr $messageStr$errorStr'];
   }
 

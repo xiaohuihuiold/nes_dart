@@ -88,11 +88,7 @@ class NESCpu {
     push(pcL);
     push(registers.status | NESCpuStatusRegister.r.bit);
     registers.setStatus(NESCpuStatusRegister.i, 1);
-    final pcL2 = emulator.mapper
-        .readU8(emulator.mapper.readInterruptAddress(NESCpuInterrupt.nmi) + 0);
-    final pcH2 = emulator.mapper
-        .readU8(emulator.mapper.readInterruptAddress(NESCpuInterrupt.nmi) + 1);
-    registers.pc = pcL2 | (pcH2 << 8);
+    registers.pc = emulator.mapper.readInterruptAddress(NESCpuInterrupt.nmi);
   }
 
   /// 执行一次
@@ -112,6 +108,13 @@ class NESCpu {
     final differentPage = (address >> 16) & 0x01 == 1;
     address &= 0xffff;
     if (emulator.logCpu) {
+      logger.d('寄存器: '
+          'ACC:${registers.acc.toRadixString(16).toUpperCase().padLeft(2, '0')} '
+          'X:${registers.x.toRadixString(16).toUpperCase().padLeft(2, '0')} '
+          'Y:${registers.y.toRadixString(16).toUpperCase().padLeft(2, '0')} '
+          'SP:${registers.sp.toRadixString(16).toUpperCase().padLeft(2, '0')} '
+          'PC:${registers.pc.toRadixString(16).toUpperCase().padLeft(4, '0')} '
+          'STATUS:${registers.status.toRadixString(2).toUpperCase().padLeft(8, '0')}');
       logger.d('执行: '
           '\$${beginPc.toRadixString(16).toUpperCase().padLeft(4, '0')}: '
           '${op.op.name} \$${address.toRadixString(16).toUpperCase().padLeft(4, '0')}');
