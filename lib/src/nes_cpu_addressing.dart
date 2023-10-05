@@ -141,14 +141,10 @@ class NESCpuAddressing {
 
   /// PC位置的值加上Y变址寄存器的值
   int _addressingAbsoluteY() {
-    int cycles = 0;
     int address = emulator.mapper.read16(registers.pc);
-    if (isDifferentPage(address, address + registers.y)) {
-      cycles = 1;
-    }
     address += registers.y;
     registers.pc += 2;
-    return address | (cycles << 16);
+    return address ;
   }
 
   /// PC的8位值加上X变址寄存器的值,并取前8位
@@ -183,7 +179,7 @@ class NESCpuAddressing {
   /// 新的地址读取两个字节作为新的地址
   int _addressingIndirectX() {
     int cycles = 0;
-    int address = emulator.mapper.read8(registers.pc);
+    int address = emulator.mapper.readU8(registers.pc);
     if (isDifferentPage(address, address + registers.x)) {
       cycles = 1;
     }

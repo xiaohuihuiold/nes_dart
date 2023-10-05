@@ -77,13 +77,11 @@ class _NESPageState extends State<NESPage> {
 
   void _onKeyDownEvent(KeyDownEvent event) {
     final key = _getPlayer1Key(event.logicalKey);
-    logger.v('按下: $key');
     _emulator?.controller.onKeyDown(NESPlayer.player1, key);
   }
 
   void _onKeyUpEvent(KeyUpEvent event) {
     final key = _getPlayer1Key(event.logicalKey);
-    logger.v('抬起: $key');
     _emulator?.controller.onKeyUp(NESPlayer.player1, key);
   }
 
