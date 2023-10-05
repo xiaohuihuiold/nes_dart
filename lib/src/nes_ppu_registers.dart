@@ -58,7 +58,7 @@ enum NESPpuCtrlRegister {
   nmi(1 << 7),
 
   /// 背景
-  background(1 << 5);
+  background(1 << 4);
 
   final int bit;
 

@@ -23,7 +23,7 @@ class _NESPageState extends State<NESPage> {
   Future<void> _loadNES() async {
     _emulator?.stop();
     _emulator = null;
-    final rom = await NESRomLoader.loadFromAsset('assets/roms/nestest.nes');
+    final rom = await NESRomLoader.loadFromAsset('assets/roms/game1.nes');
     _emulator = NESEmulator(
       rom: rom,
       // debug: true,

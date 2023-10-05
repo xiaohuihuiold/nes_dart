@@ -1,5 +1,3 @@
-import 'dart:developer';
-import 'dart:math';
 import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 
@@ -109,7 +107,7 @@ class NESPpu {
     // 1字节4x4个图块
     final attributeTable = readAll(minNameTablesAddress + 960, 64);
     final patternTable = readAll(
-        (registers.ctrl & NESPpuCtrlRegister.background.bit != 0 ? 0 : 0) *
+        (registers.ctrl & NESPpuCtrlRegister.background.bit != 0 ? 1 : 0) *
             0x1000,
         0x1000);
     final palette = readAll(minPaletteAddress, 0x20);
