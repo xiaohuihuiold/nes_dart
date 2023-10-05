@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'nes_cpu_codes.dart';
 import 'nes_emulator.dart';
 import 'nes_cpu_registers.dart';
@@ -170,9 +172,11 @@ class NESCpuExecutor {
   /// 结果存入[NESCpuRegisters.aac]
   void _executeSBC(NESOpCode op, int address) {
     final value = mapper.readU8(address);
-    final result = registers.acc -
+    int result = registers.acc -
         value -
         (1 - registers.getStatus(NESCpuStatusRegister.c));
+    registers.setStatus(NESCpuStatusRegister.c, (result >> 8) == 0 ? 1 : 0);
+    result &= 0xFF;
     if (((registers.acc ^ value) & 0x80) != 0 &&
         ((registers.acc ^ result) & 0x80) != 0) {
       registers.setStatus(NESCpuStatusRegister.v, 1);
@@ -180,7 +184,6 @@ class NESCpuExecutor {
       registers.setStatus(NESCpuStatusRegister.v, 0);
     }
     registers.acc = result;
-    registers.setStatus(NESCpuStatusRegister.c, (result >> 8) == 0 ? 1 : 0);
     registers.checkAndUpdateStatus(NESCpuStatusRegister.s, result);
     registers.checkAndUpdateStatus(NESCpuStatusRegister.z, result);
   }
@@ -557,7 +560,7 @@ class NESCpuExecutor {
   void _executeJSR(NESOpCode op, int address) {
     final pc = registers.pc - 1;
     cpu.push(pc >> 8);
-    cpu.push(pc);
+    cpu.push(pc & 0xFF);
     registers.pc = address;
   }
 
@@ -577,8 +580,8 @@ class NESCpuExecutor {
     cpu.push(pcH);
     cpu.push(pcL);
     cpu.push(registers.status |
-        NESCpuStatusRegister.r.bit |
-        NESCpuStatusRegister.b.bit);
+    NESCpuStatusRegister.r.bit |
+    NESCpuStatusRegister.b.bit);
     registers.setStatus(NESCpuStatusRegister.i, 1);
     final pcL2 = emulator.mapper
         .readU8(emulator.mapper.readInterruptAddress(NESCpuInterrupt.irq) + 0);

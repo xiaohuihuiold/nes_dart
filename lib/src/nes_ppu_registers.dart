@@ -55,7 +55,10 @@ enum NESPpuCtrlRegister {
   inc(1 << 2),
 
   /// 是否NMI中断
-  nmi(1 << 7);
+  nmi(1 << 7),
+
+  /// 背景
+  background(1 << 5);
 
   final int bit;
 

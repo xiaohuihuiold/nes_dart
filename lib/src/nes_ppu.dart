@@ -108,7 +108,10 @@ class NESPpu {
     final nameTable = readAll(minNameTablesAddress, 960);
     // 1字节4x4个图块
     final attributeTable = readAll(minNameTablesAddress + 960, 64);
-    final patternTable = readAll(0, 0x1000);
+    final patternTable = readAll(
+        (registers.ctrl & NESPpuCtrlRegister.background.bit != 0 ? 0 : 0) *
+            0x1000,
+        0x1000);
     final palette = readAll(minPaletteAddress, 0x20);
     final paletteData = palette.map((e) => this.palette.value[e]).toList();
     // TODO: 优化实现

@@ -128,7 +128,7 @@ class _NESPageState extends State<NESPage> {
       floatingActionButton: controllerBar,
       body: Row(
         children: [
-          MemoryViewer(emulator: emulator),
+          // MemoryViewer(emulator: emulator),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
