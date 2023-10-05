@@ -1,7 +1,6 @@
 # NES Emulator
 
-dart实现的NES模拟器
-参考[StepFC](https://github.com/dustpg/StepFC)
+dart实现的NES模拟器,部分参考[Nesdev Wiki](https://www.nesdev.org/wiki/Nesdev_Wiki)以及[StepFC](https://github.com/dustpg/StepFC)项目及其文章
 
 ## 目标
 
@@ -34,3 +33,10 @@ dart实现的NES模拟器
   - [ ] 未实现
 - [ ] APU
   - [ ] 未实现
+
+## 测试ROM
+
+### nestest.nes
+
+![nestest](images/nestest01.png)
+![nestest](images/nestest02.png)
