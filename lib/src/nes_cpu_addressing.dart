@@ -130,7 +130,7 @@ class NESCpuAddressing {
   /// PC位置的值加上X变址寄存器的值
   int _addressingAbsoluteX() {
     int cycles = 0;
-    int address = emulator.mapper.read16(registers.pc);
+    int address = emulator.mapper.readU16(registers.pc);
     if (isDifferentPage(address, address + registers.x)) {
       cycles = 1;
     }
@@ -141,7 +141,7 @@ class NESCpuAddressing {
 
   /// PC位置的值加上Y变址寄存器的值
   int _addressingAbsoluteY() {
-    int address = emulator.mapper.read16(registers.pc);
+    int address = emulator.mapper.readU16(registers.pc);
     address += registers.y;
     registers.pc += 2;
     return address;

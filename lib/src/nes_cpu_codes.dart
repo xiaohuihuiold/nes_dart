@@ -285,7 +285,6 @@ class NESCpuCodes {
     NESOpCode(0x8B, 1, NESOp.unk, NESAddressing.unknown, 2),
     // LAS
     NESOpCode(0xBB, 1, NESOp.unk, NESAddressing.unknown, 2),
-    NESOpCode(0xEB, 1, NESOp.unk, NESAddressing.unknown, 2),
 
     /// UNK
     NESOpCode(0x80, 2, NESOp.unk, NESAddressing.immediate, 2),
@@ -368,6 +367,7 @@ class NESCpuCodes {
     NESOpCode(0xE5, 2, NESOp.sbc, NESAddressing.zeroPage, 3),
     NESOpCode(0xF5, 2, NESOp.sbc, NESAddressing.zeroPageX, 4),
     NESOpCode(0xED, 3, NESOp.sbc, NESAddressing.absolute, 4),
+    NESOpCode(0xEB, 2, NESOp.sbc, NESAddressing.immediate, 2),
     NESOpCode(0xFD, 3, NESOp.sbc, NESAddressing.absoluteX, 4, 1),
     NESOpCode(0xF9, 3, NESOp.sbc, NESAddressing.absoluteY, 4, 1),
     NESOpCode(0xE1, 2, NESOp.sbc, NESAddressing.indirectX, 6),
