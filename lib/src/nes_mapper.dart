@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/foundation.dart';
 import 'logger.dart';
 import 'constants.dart';
@@ -8,6 +6,14 @@ import 'nes_emulator.dart';
 import 'nes_cpu.dart';
 import 'nes_controller.dart';
 import 'nes_ppu_registers.dart';
+
+/// Mapper构造器
+typedef MapperBuilder = NESMapper Function(NESEmulator emulator);
+
+/// Mapper映射
+final _mapperMapping = <int, MapperBuilder>{
+  0: (emulator) => NESMapper000(emulator),
+};
 
 /// Mapper
 ///
@@ -49,6 +55,15 @@ abstract class NESMapper {
   final _memory = NESMemory();
 
   NESMapper(this.emulator);
+
+  /// 获取Mapper
+  static NESMapper getMapper(int mapperNumber, NESEmulator emulator) {
+    final mapper = _mapperMapping[mapperNumber];
+    if (mapper == null) {
+      throw Exception('未实现的Mapper: $mapperNumber');
+    }
+    return mapper(emulator);
+  }
 
   /// 重置
   @mustCallSuper

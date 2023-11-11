@@ -149,7 +149,7 @@ class _PaletteIndexState extends State<_PaletteIndex> {
   @override
   void initState() {
     super.initState();
-    _refreshTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
+    _refreshTimer = Timer.periodic(const Duration(milliseconds: 200), (timer) {
       try {
         _refreshData();
       } catch (e) {

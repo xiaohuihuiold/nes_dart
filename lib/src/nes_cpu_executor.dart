@@ -99,7 +99,7 @@ class NESCpuExecutor {
     list[NESOp.alr.index] = defaultExecutor;
     list[NESOp.anc.index] = _executeANC;
     list[NESOp.arr.index] = defaultExecutor;
-    list[NESOp.axs.index] = defaultExecutor;
+    list[NESOp.axs.index] = _executeAXS;
     list[NESOp.lax.index] = _executeLAX;
     list[NESOp.sax.index] = _executeSAX;
     list[NESOp.dcp.index] = _executeDCP;
@@ -606,6 +606,15 @@ class NESCpuExecutor {
     registers.checkAndUpdateStatus(NESCpuStatusRegister.z, value);
     registers.setStatus(NESCpuStatusRegister.c,
         registers.getStatus(NESCpuStatusRegister.s) == 0 ? 0 : 1);
+  }
+
+  /// [NESCpuRegisters.acc]与[NESCpuRegisters.x]减[address]的值给[NESCpuRegisters.x]
+  void _executeAXS(NESOpCode op, int address) {
+    final value = (registers.acc & registers.x) - mapper.readU8(address);
+    registers.x = value;
+    registers.setStatus(NESCpuStatusRegister.c, (value & 0x8000) == 0 ? 1 : 0);
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.s, value);
+    registers.checkAndUpdateStatus(NESCpuStatusRegister.z, value);
   }
 
   /// [address]的值加载到[NESCpuRegisters.acc]和[NESCpuRegisters.x]

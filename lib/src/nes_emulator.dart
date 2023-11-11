@@ -96,8 +96,7 @@ class NESEmulator {
     this.logPpuRegisters = false,
     this.logLoop = false,
   }) {
-    // TODO: 根据mapper编号创建
-    _mapper = NESMapper000(this);
+    _mapper = NESMapper.getMapper(rom.mapperNumber, this);
     reset();
   }
 

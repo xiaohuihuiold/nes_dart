@@ -8,6 +8,10 @@ class Constants {
   static const byte16KiB = 16 * byte1KiB;
   static const byte32KiB = 32 * byte1KiB;
   static const byte64KiB = 64 * byte1KiB;
+  static const byte128KiB = 128 * byte1KiB;
+  static const byte256KiB = 256 * byte1KiB;
+  static const byte512KiB = 512 * byte1KiB;
+  static const byte1024KiB = 1024 * byte1KiB;
 
   /// 文件头
   static const fileHeader = 'NES';

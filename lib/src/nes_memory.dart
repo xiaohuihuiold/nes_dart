@@ -12,7 +12,7 @@ class NESMemory {
   static const pageCount = 0x0100;
 
   /// 将可寻址最大地址作为内存大小,65536字节
-  static const _memorySize = Constants.byte64KiB;
+  static const _memorySize = Constants.byte1024KiB * 4;
 
   /// 内存
   ByteData _memory = ByteData(_memorySize);

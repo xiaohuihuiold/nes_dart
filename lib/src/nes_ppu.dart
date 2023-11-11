@@ -211,6 +211,9 @@ class NESPpu {
       return _memory.readU8(address);
     } else if (address <= maxNameTablesAddress) {
       return _memory.readU8(address);
+    } else if (address >= minPaletteAddress &&
+        address < minPaletteAddress + 0x20) {
+      return _memory.readU8(address);
     } else {
       return _memory.readU8(address);
     }
@@ -224,6 +227,23 @@ class NESPpu {
       _memory.writeU8(address, value);
     } else if (address <= maxNameTablesAddress) {
       _memory.writeU8(address, value);
+    } else if (address >= minPaletteAddress &&
+        address < minPaletteAddress + 0x20) {
+      if (address == 0x3F00 || address == 0x3F10) {
+        _memory.writeU8(0x3F00, value);
+        _memory.writeU8(0x3F10, value);
+      } else if (address == 0x3F04 || address == 0x3F14) {
+        _memory.writeU8(0x3F04, value);
+        _memory.writeU8(0x3F14, value);
+      } else if (address == 0x3F08 || address == 0x3F18) {
+        _memory.writeU8(0x3F08, value);
+        _memory.writeU8(0x3F18, value);
+      } else if (address == 0x3F0C || address == 0x3F1C) {
+        _memory.writeU8(0x3F0C, value);
+        _memory.writeU8(0x3F1C, value);
+      } else {
+        _memory.writeU8(address, value);
+      }
     } else {
       _memory.writeU8(address, value);
     }
